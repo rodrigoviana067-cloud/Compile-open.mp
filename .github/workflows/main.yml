@@ -15,6 +15,6 @@ jobs:
           # Adiciona a pasta qawno ao caminho de bibliotecas para encontrar a libpawnc.so
           echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/qawno" >> $GITHUB_ENV
 
-      - name: Compilar AMX
+            - name: Compilar AMX
         run: |
-          ./qawno/pawncc gamemodes/cidade_real.pwn -i:qawno/include -o:gamemodes/cidade_real.amx -;+ -(+ -d3
+          ./qawno/pawncc gamemodes/cidade_real.pwn -i:qawno/include -o:gamemodes/cidade_real.amx '-;+' '-(+' -d3
