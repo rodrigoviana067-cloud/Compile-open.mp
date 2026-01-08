@@ -17,3 +17,29 @@ jobs:
         run: |
           # Baixa o binário do compilador para Linux
           wget 
+
+          tar -xvf pawnc-3.10.10-linux.tar.gz
+          # Dá permissão de execução
+          chmod +x bin/pawncc
+
+      - name: Instalar Includes do open.mp
+        run: |
+          git clone --depth 1 
+
+           omp_inc
+          mkdir -p include
+          cp -r omp_inc/*.inc include/
+          # Se você tiver includes próprios na sua pasta 'qawno/include', use:
+          # cp -r qawno/include/*.inc include/ 2>/dev/null || true
+
+      - name: Compilar Gamemode
+        run: |
+          mkdir -p gamemodes
+          # Comando direto usando o binário baixado
+          ./bin/pawncc gamemodes/cidade_real.pwn -iinclude -o"gamemodes/cidade_real.amx" -;+ -(+
+
+      - name: Gerar Arquivo para o Termux
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cidade-Real-AMX
+          path: gamemodes/cidade_real.amx
