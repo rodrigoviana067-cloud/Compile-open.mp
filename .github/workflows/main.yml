@@ -13,32 +13,26 @@ jobs:
       - name: Checkout do Código
         uses: actions/checkout@v4
 
-      - name: Baixar Compilador Pawn Oficial (2026)
+      - name: Baixar Compilador Pawn Oficial
         run: |
-          # Baixa o binário do compilador para Linux
-          wget 
-
-          tar -xvf pawnc-3.10.10-linux.tar.gz
-          # Dá permissão de execução
+          # Baixando o compilador diretamente da fonte oficial
+          wget "github.com" -O pawnc.tar.gz
+          tar -xvf pawnc.tar.gz
           chmod +x bin/pawncc
 
-      - name: Instalar Includes do open.mp
+      - name: Configurar Includes open.mp
         run: |
-          git clone --depth 1 
-
-           omp_inc
+          git clone --depth 1 github.com omp_inc
           mkdir -p include
           cp -r omp_inc/*.inc include/
-          # Se você tiver includes próprios na sua pasta 'qawno/include', use:
-          # cp -r qawno/include/*.inc include/ 2>/dev/null || true
 
-      - name: Compilar Gamemode
+      - name: Compilar Gamemode RP
         run: |
           mkdir -p gamemodes
-          # Comando direto usando o binário baixado
-          ./bin/pawncc gamemodes/cidade_real.pwn -iinclude -o"gamemodes/cidade_real.amx" -;+ -(+
+          # O comando abaixo transforma seu código em jogo
+          ./bin/pawncc gamemodes/cidade_real.pwn -iinclude -o"gamemodes/cidade_real.amx" "-;+" "-(+"
 
-      - name: Gerar Arquivo para o Termux
+      - name: Upload para o Termux
         uses: actions/upload-artifact@v4
         with:
           name: Cidade-Real-AMX
