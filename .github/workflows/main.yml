@@ -3,37 +3,37 @@ name: Compilar Cidade Real RP 2026
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch: # Permite rodar manualmente
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do código
+      - name: Checkout do Código
         uses: actions/checkout@v4
 
-      - name: Instalar Compilador Pawn (open.mp)
-        run: |
-          mkdir -p build/include
-          wget github.com
-          tar -xvf pawnc-3.10.10-linux.tar.gz
-          cp -r include/* build/include/
+      - name: Instalar Compilador Pawn Oficial
+        uses: Southclaws/setup-pawn@v1
+        with:
+          pawn-version: '3.10.10'
 
-      - name: Baixar Includes do open.mp
+      - name: Instalar Includes do open.mp
         run: |
-          git clone github.com omp-inc
-          cp -r omp-inc/*.inc build/include/
+          git clone --depth 1 github.com omp_inc
+          mkdir -p include
+          cp -r omp_inc/*.inc include/
 
       - name: Compilar Gamemode
         run: |
-          # Altere 'cidade_real.pwn' para o nome do seu arquivo principal
-          ./bin/pawncc gamemodes/cidade_real.pwn -ibuild/include -o"gamemodes/cidade_real.amx" -;+ -(+
+          # Garante que a pasta de saída existe
+          mkdir -p gamemodes
+          
+          # COMANDO DE COMPILAÇÃO (Mude 'cidade_real' se o seu arquivo tiver outro nome)
+          pawncc gamemodes/cidade_real.pwn -iinclude -o"gamemodes/cidade_real.amx" -;+ -(+
 
-      - name: Upload do arquivo .AMX (Pronto para o Termux)
+      - name: Gerar Link de Download (.amx)
         uses: actions/upload-artifact@v4
         with:
-          name: Cidade-Real-RP-AMX
+          name: Cidade-Real-RP-Compilada
           path: gamemodes/cidade_real.amx
