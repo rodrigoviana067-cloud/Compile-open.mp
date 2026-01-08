@@ -13,8 +13,9 @@ jobs:
       - name: Checkout do Código
         uses: actions/checkout@v4
 
-      - name: Instalar Compilador Pawn Oficial
-        uses: Southclaws/setup-pawn@v1
+      - name: Configurar Compilador Pawn
+        # Action oficial atualizada para 2026
+        uses: pawn-lang/setup-pawn@v1
         with:
           pawn-version: '3.10.10'
 
@@ -26,14 +27,12 @@ jobs:
 
       - name: Compilar Gamemode
         run: |
-          # Garante que a pasta de saída existe
           mkdir -p gamemodes
-          
-          # COMANDO DE COMPILAÇÃO (Mude 'cidade_real' se o seu arquivo tiver outro nome)
+          # Certifique-se que seu arquivo se chama cidade_real.pwn na pasta gamemodes
           pawncc gamemodes/cidade_real.pwn -iinclude -o"gamemodes/cidade_real.amx" -;+ -(+
 
-      - name: Gerar Link de Download (.amx)
+      - name: Gerar Arquivo para o Termux
         uses: actions/upload-artifact@v4
         with:
-          name: Cidade-Real-RP-Compilada
+          name: Cidade-Real-AMX
           path: gamemodes/cidade_real.amx
