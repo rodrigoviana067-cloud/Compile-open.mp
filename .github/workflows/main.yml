@@ -17,9 +17,8 @@ jobs:
     - name: Baixar Pawn Compiler 3.10.10
       run: |
         set -e
-        # Usando -L para evitar o erro de download que você teve antes
-        wget -L https://github.com/pawn-lang/compiler/releases/download/v3.10.10/pawnc-3.10.10-linux.tar.gz
-        tar -xzf pawnc-3.10.10-linux.tar.gz
+        curl -L -o pawnc.tar.gz github.com
+        tar -xzf pawnc.tar.gz
         chmod +x pawnc-3.10.10-linux/bin/pawncc
 
     - name: Instalar libpawnc.so
@@ -29,23 +28,23 @@ jobs:
         sudo cp "$LIB_PATH" /usr/lib/
         sudo ldconfig
 
-    # ESSA É A PARTE QUE FALTAVA PARA O OPEN.MP
-    - name: Baixar Includes do open.mp
+    - name: Baixar Includes open.mp
       run: |
+        # O link completo do repositório:
         git clone --depth 1 github.com omp_includes
 
     - name: Compilar Cidade Real
       run: |
         set -e
-        mkdir -p compiled/gamemodes
+        mkdir -p compiled
         ./pawnc-3.10.10-linux/bin/pawncc "gamemodes/cidade_real.pwn" \
           -iomp_includes \
           -iinclude \
           -i./pawnc-3.10.10-linux/include \
-          -o"compiled/gamemodes/cidade_real.amx"
+          -o"compiled/cidade_real.amx"
 
-    - name: Upload dos AMX
+    - name: Upload AMX
       uses: actions/upload-artifact@v4
       with:
-        name: CidadeReal-OMP
-        path: compiled/gamemodes/cidade_real.amx
+        name: CidadeReal-AMX
+        path: compiled/cidade_real.amx
