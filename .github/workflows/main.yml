@@ -1,20 +1,33 @@
-name: Compilar Cidade Real RP (Linux)
-on: [push]
+name: Compilar Cidade Real RP 2026
+
+on: 
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Usa Linux para ser compatível com seu pawncc
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout do código
+      - name: Baixar codigo do repositorio
         uses: actions/checkout@v4
 
-      - name: Configurar permissões e bibliotecas
+      - name: Preparar Compilador e Compilar
         run: |
-          # Dá permissão de execução para o compilador
+          # 1. Dar permissão de execução ao compilador que você enviou
           chmod +x ./qawno/pawncc
-          # Adiciona a pasta qawno ao caminho de bibliotecas para encontrar a libpawnc.so
-          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/qawno" >> $GITHUB_ENV
-
-            - name: Compilar AMX
-        run: |
+          
+          # 2. Configurar o caminho para encontrar a libpawnc.so
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/qawno
+          
+          # 3. Executar a compilação com as aspas corretas para o Linux
+          # Certifique-se que o arquivo gamemodes/cidade_real.pwn existe
           ./qawno/pawncc gamemodes/cidade_real.pwn -i:qawno/include -o:gamemodes/cidade_real.amx '-;+' '-(+' -d3
+
+      - name: Upload do arquivo compilado (AMX)
+        uses: actions/upload-artifact@v4
+        with:
+          name: CidadeReal-AMX
+          path: gamemodes/cidade_real.amx
