@@ -13,26 +13,7 @@ jobs:
       - name: Checkout do Código
         uses: actions/checkout@v4
 
-      - name: Configurar Compilador Pawn
-        # Action oficial atualizada para 2026
-        uses: pawn-lang/setup-pawn@v1
-        with:
-          pawn-version: '3.10.10'
-
-      - name: Instalar Includes do open.mp
+      - name: Baixar Compilador Pawn Oficial (2026)
         run: |
-          git clone --depth 1 github.com omp_inc
-          mkdir -p include
-          cp -r omp_inc/*.inc include/
-
-      - name: Compilar Gamemode
-        run: |
-          mkdir -p gamemodes
-          # Certifique-se que seu arquivo se chama cidade_real.pwn na pasta gamemodes
-          pawncc gamemodes/cidade_real.pwn -iinclude -o"gamemodes/cidade_real.amx" -;+ -(+
-
-      - name: Gerar Arquivo para o Termux
-        uses: actions/upload-artifact@v4
-        with:
-          name: Cidade-Real-AMX
-          path: gamemodes/cidade_real.amx
+          # Baixa o binário do compilador para Linux
+          wget 
