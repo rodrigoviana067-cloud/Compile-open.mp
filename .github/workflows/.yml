@@ -1,0 +1,51 @@
+name: Compilar Cidade Real (open.mp)
+
+on:
+  push:
+    paths:
+      - "gamemodes/cidade_real.pwn"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v4
+
+    - name: Instalar dependências 32-bit
+      run: |
+        sudo dpkg --add-architecture i386
+        sudo apt-get update
+        sudo apt-get install -y libc6:i386 libstdc++6:i386
+
+    - name: Baixar Compilador Pawn 3.10.11
+      run: |
+        wget github.com
+        tar -xzf pawnc-3.10.11-linux.tar.gz
+        chmod +x pawnc-3.10.11-linux/bin/pawncc
+
+    - name: Configurar bibliotecas do compilador
+      run: |
+        sudo cp pawnc-3.10.11-linux/bin/libpawnc.so /usr/lib/
+        sudo ldconfig
+
+    - name: Baixar Includes Oficiais open.mp
+      run: |
+        git clone --depth 1 github.com omp_includes
+
+    - name: Compilar Cidade Real
+      run: |
+        mkdir -p build
+        ./pawnc-3.10.11-linux/bin/pawncc "gamemodes/cidade_real.pwn" \
+          -i"omp_includes" \
+          -i"include" \
+          -o"build/cidade_real.amx" \
+          -d3 -Z+ -O1 -\\+
+          
+    - name: Upload do AMX
+      uses: actions/upload-artifact@v4
+      with:
+        name: CidadeReal-OpenMP
+        path: build/cidade_real.amx
