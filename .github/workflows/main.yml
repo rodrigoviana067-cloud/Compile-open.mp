@@ -13,19 +13,27 @@ jobs:
       - name: Checkout do Código
         uses: actions/checkout@v4
 
-      # -- Ação oficial do open.mp para configurar tudo --
-      - name: Setup open.mp environment
-        uses: openmultiplayer/action-setup@v1
-        with:
-          pawn-version: 3.10.10
+      - name: Instalar Compilador Pawn (Método Direto 2026)
+        run: |
+          # Baixa o compilador usando CURL para seguir redirecionamentos corretamente
+          curl -L "github.com" -o pawnc.tar.gz
+          tar -xzvf pawnc.tar.gz
+          chmod +x bin/pawncc
 
-      - name: Compilar Gamemode RP
+      - name: Instalar Includes do open.mp
+        run: |
+          # Baixa as bibliotecas necessárias para a sua cidade 100% RP
+          git clone --depth 1 github.com omp_inc
+          mkdir -p include
+          cp -r omp_inc/*.inc include/
+
+      - name: Compilar Gamemode
         run: |
           mkdir -p gamemodes
-          # O comando abaixo transforma seu código em jogo
-          pawncc gamemodes/cidade_real.pwn -iinclude -o"gamemodes/cidade_real.amx" "-;+" "-(+"
+          # Compilação oficial para o open.mp
+          ./bin/pawncc gamemodes/cidade_real.pwn -iinclude -o"gamemodes/cidade_real.amx" "-;+" "-(+"
 
-      - name: Gerar Arquivo para o Termux
+      - name: Upload para o Termux
         uses: actions/upload-artifact@v4
         with:
           name: Cidade-Real-AMX
