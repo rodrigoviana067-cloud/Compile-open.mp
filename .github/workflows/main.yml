@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - "gamemodes/cidade_real.pwn"
+  pull_request:
+    paths:
+      - "gamemodes/cidade_real.pwn"
   workflow_dispatch:
 
 jobs:
@@ -11,39 +14,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1. Checkout do seu repositório
     - name: Checkout do código
       uses: actions/checkout@v4
 
+    # 2. Instalar bibliotecas de compatibilidade 32-bit (Pawncc é 32-bit)
     - name: Instalar dependências 32-bit
       run: |
         sudo dpkg --add-architecture i386
         sudo apt-get update
         sudo apt-get install -y libc6:i386 libstdc++6:i386
 
+    # 3. Baixar o compilador corrigindo o erro de download
     - name: Baixar Compilador Pawn 3.10.11
       run: |
-        wget github.com
-        tar -xzf pawnc-3.10.11-linux.tar.gz
+        wget -L -O pawnc.tar.gz github.com
+        tar -xzf pawnc.tar.gz
         chmod +x pawnc-3.10.11-linux/bin/pawncc
 
-    - name: Configurar bibliotecas do compilador
+    # 4. Configurar a biblioteca compartilhada do compilador
+    - name: Configurar libpawnc.so
       run: |
-        sudo cp pawnc-3.10.11-linux/bin/libpawnc.so /usr/lib/
+        LIB_PATH=$(find pawnc-3.10.11-linux -name "libpawnc.so" | head -n 1)
+        sudo cp "$LIB_PATH" /usr/lib/
         sudo ldconfig
 
+    # 5. Baixar as includes oficiais do open.mp (Substitui a_samp)
     - name: Baixar Includes Oficiais open.mp
       run: |
         git clone --depth 1 github.com omp_includes
 
+    # 6. Compilar o Gamemode
     - name: Compilar Cidade Real
       run: |
         mkdir -p build
         ./pawnc-3.10.11-linux/bin/pawncc "gamemodes/cidade_real.pwn" \
           -i"omp_includes" \
           -i"include" \
+          -i"pawnc-3.10.11-linux/include" \
           -o"build/cidade_real.amx" \
           -d3 -Z+ -O1 -\\+
           
+    # 7. Disponibilizar o arquivo .AMX para download
     - name: Upload do AMX
       uses: actions/upload-artifact@v4
       with:
