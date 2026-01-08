@@ -1,50 +1,20 @@
-name: Compilar Cidade Real (open.mp)
-
-on:
-  push:
-    paths:
-      - "gamemodes/cidade_real.pwn"
-  workflow_dispatch:
+name: Compilar Cidade Real RP (Linux)
+on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-latest  # Usa Linux para ser compatível com seu pawncc
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout do código
+        uses: actions/checkout@v4
 
-    - name: Baixar Pawn Compiler 3.10.10
-      run: |
-        set -e
-        curl -L -o pawnc.tar.gz github.com
-        tar -xzf pawnc.tar.gz
-        chmod +x pawnc-3.10.10-linux/bin/pawncc
+      - name: Configurar permissões e bibliotecas
+        run: |
+          # Dá permissão de execução para o compilador
+          chmod +x ./qawno/pawncc
+          # Adiciona a pasta qawno ao caminho de bibliotecas para encontrar a libpawnc.so
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/qawno" >> $GITHUB_ENV
 
-    - name: Instalar libpawnc.so
-      run: |
-        set -e
-        LIB_PATH=$(find pawnc-3.10.10-linux -name "libpawnc.so" | head -n 1)
-        sudo cp "$LIB_PATH" /usr/lib/
-        sudo ldconfig
-
-    - name: Baixar Includes open.mp
-      run: |
-        # O link completo do repositório:
-        git clone --depth 1 github.com omp_includes
-
-    - name: Compilar Cidade Real
-      run: |
-        set -e
-        mkdir -p compiled
-        ./pawnc-3.10.10-linux/bin/pawncc "gamemodes/cidade_real.pwn" \
-          -iomp_includes \
-          -iinclude \
-          -i./pawnc-3.10.10-linux/include \
-          -o"compiled/cidade_real.amx"
-
-    - name: Upload AMX
-      uses: actions/upload-artifact@v4
-      with:
-        name: CidadeReal-AMX
-        path: compiled/cidade_real.amx
+      - name: Compilar AMX
+        run: |
+          ./qawno/pawncc gamemodes/cidade_real.pwn -i:qawno/include -o:gamemodes/cidade_real.amx -;+ -(+ -d3
