@@ -13,27 +13,26 @@ jobs:
       - name: Checkout do Código
         uses: actions/checkout@v4
 
-      - name: Instalar Compilador Pawn (Método Direto 2026)
+      - name: Instalar Ambiente open.mp
         run: |
-          # Baixa o compilador usando CURL para seguir redirecionamentos corretamente
-          curl -L "github.com" -o pawnc.tar.gz
-          tar -xzvf pawnc.tar.gz
-          chmod +x bin/pawncc
+          # Baixa o servidor completo para usar o compilador e os includes oficiais
+          curl -L "github.com" -o omp.tar.gz
+          tar -xzvf omp.tar.gz
+          chmod +x qawno/pawncc
 
-      - name: Instalar Includes do open.mp
+      - name: Preparar Pastas
         run: |
-          # Baixa as bibliotecas necessárias para a sua cidade 100% RP
-          git clone --depth 1 github.com omp_inc
-          mkdir -p include
-          cp -r omp_inc/*.inc include/
+          # Se o seu arquivo .pwn estiver na raiz, movemos para a pasta gamemodes
+          mkdir -p gamemodes
+          # Procura qualquer arquivo .pwn e move para a pasta gamemodes
+          find . -maxdepth 1 -name "*.pwn" -exec mv {} gamemodes/cidade_real.pwn \;
 
       - name: Compilar Gamemode
         run: |
-          mkdir -p gamemodes
-          # Compilação oficial para o open.mp
-          ./bin/pawncc gamemodes/cidade_real.pwn -iinclude -o"gamemodes/cidade_real.amx" "-;+" "-(+"
+          # Comando oficial de compilação 2026
+          LD_LIBRARY_PATH=$(pwd)/qawno ./qawno/pawncc gamemodes/cidade_real.pwn -i./qawno/include -o"gamemodes/cidade_real.amx" "-;+" "-(+"
 
-      - name: Upload para o Termux
+      - name: Gerar AMX para o Termux
         uses: actions/upload-artifact@v4
         with:
           name: Cidade-Real-AMX
