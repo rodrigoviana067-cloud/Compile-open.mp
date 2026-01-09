@@ -9,14 +9,23 @@ jobs:
       - name: Baixar codigo
         uses: actions/checkout@v4
 
-      - name: Instalar Suporte 32-bit e Libs Antigas
+      - name: Instalar Suporte 32-bit e Libs
         run: |
           sudo dpkg --add-architecture i386
-          # Adiciona repositório de segurança do Ubuntu 22.04 para achar a libncurses5
-          echo "deb http://security.ubuntu.com/ubuntu focal-security main universe" | sudo tee /etc/apt/sources.list.d/focal-security.list
+          echo "deb security.ubuntu.com focal-security main universe" | sudo tee /etc/apt/sources.list.d/focal-security.list
           sudo apt-get update
-          # Agora instalamos as libs de 32 bits necessárias
           sudo apt-get install -y gcc-multilib libc6:i386 libncurses5:i386 libstdc++6:i386
+
+      - name: Baixar YSI e Includes Automaticamente
+        run: |
+          # Cria a pasta de includes se não existir
+          mkdir -p qawno/include
+          # Baixa o YSI direto do GitHub oficial
+          git clone --depth 1 github.com qawno/include/YSI
+          # Move as pastas para o local correto que o compilador espera
+          mv qawno/include/YSI/* qawno/include/
+          # Baixa a include do open.mp (caso não tenha no seu git)
+          wget raw.githubusercontent.com -P qawno/include/
 
       - name: Configurar Compilador
         run: |
@@ -24,13 +33,11 @@ jobs:
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno" >> $GITHUB_ENV
           sudo ldconfig $GITHUB_WORKSPACE/qawno
 
-      - name: Compilar Tudo Automático
+      - name: Compilar Tudo
         run: |
-          # Compila GameModes
           for file in gamemodes/*.pwn; do
             ./qawno/pawncc "$file" -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
           done
-          # Compila Filterscripts
           if [ -d "filterscripts" ]; then
             for file in filterscripts/*.pwn; do
               ./qawno/pawncc "$file" -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
