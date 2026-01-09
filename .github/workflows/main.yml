@@ -9,15 +9,25 @@ jobs:
       - name: Baixar codigo
         uses: actions/checkout@v4
 
-      - name: Compilar Game Mode
+      - name: Configurar Compilador
         run: |
           chmod +x ./qawno/pawncc
           export LD_LIBRARY_PATH=$(pwd)/qawno
+
+      - name: Compilar Game Mode
+        run: |
           ./qawno/pawncc gamemodes/cidade_real.pwn -i"qawno/include" -o"gamemodes/cidade_real.amx" "-;+" "-(+" -d3
 
-      - name: Upload AMX
+      - name: Compilar Filterscripts (Spawn Novatos)
+        run: |
+          # Compila o script de spawn separado para não mexer na GM
+          ./qawno/pawncc filterscripts/spawn_novatos.pwn -i"qawno/include" -o"filterscripts/spawn_novatos.amx" "-;+" "-(+" -d3
+
+      - name: Upload Binarios (AMX)
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: CidadeReal-AMX
-          path: "gamemodes/cidade_real.amx"
+          name: CidadeReal-Full-Package
+          path: |
+            gamemodes/cidade_real.amx
+            filterscripts/spawn_novatos.amx
