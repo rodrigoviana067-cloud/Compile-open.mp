@@ -30,8 +30,7 @@ jobs:
       - name: Configurar YSI e Includes
         run: |
           mkdir -p qawno/include
-          git clone --depth 1 github.com /tmp/ysi
-          cp -r /tmp/ysi/YSI qawno/include/
+          git clone --depth 1 https://github.com/pawn-lang/YSI-Includes
 
       - name: Preparar Compilador
         run: |
