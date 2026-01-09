@@ -11,7 +11,7 @@ main() {
 
 public OnGameModeInit() {
     SetGameModeText("Cidade Real RP v1.0");
-    AddPlayerClass(0, 1154.22, -1769.34, 13.95, 0.0, WEAPON_NONE, 0, WEAPON_NONE, 0, WEAPON_NONE, 0);
+    AddPlayerClass(0, 1154.22, -1769.34, 13.95, 0.0, t_WEAPON:0, 0, t_WEAPON:0, 0, t_WEAPON:0, 0);
 }
 
 public OnPlayerConnect(playerid) {
