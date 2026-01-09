@@ -1,6 +1,4 @@
-#include <core>
-#include <float>
-#include <string>
+// Em 2026, a include open.mp já carrega float, string e core automaticamente.
 #include <open.mp>
 
 main() {
@@ -11,22 +9,28 @@ main() {
 
 public OnGameModeInit() {
     SetGameModeText("Cidade Real RP v1.0");
-    AddPlayerClass(0, 1154.22, -1769.34, 13.95, 0.0, t_WEAPON:0, 0, t_WEAPON:0, 0, t_WEAPON:0, 0);
-}
-
-public OnPlayerConnect(playerid) {
-    SendClientMessage(playerid, -1, "{00FF00}Bem-vindo à Cidade Real! Use Nome_Sobrenome.");
+    
+    // Corrigido para o padrão open.mp (usando as tags de arma corretas)
+    AddPlayerClass(0, 1154.22, -1769.34, 13.95, 0.0, WEAPON_FIST, 0, WEAPON_FIST, 0, WEAPON_FIST, 0);
+    
     return 1;
 }
 
-public OnPlayerText(playerid, text[]) {
-    // Chat de Proximidade (Diferencial RP)
+public OnPlayerConnect(playerid) {
+    // Cores em formato HEX para mensagens
+    SendClientMessage(playerid, 0x00FF00FF, "Bem-vindo à Cidade Real! Use Nome_Sobrenome.");
+    return 1;
+}
+
+public OnPlayerText(playerid, const text[]) {
+    // Chat de Proximidade Realista
     new Float:x, Float:y, Float:z;
     GetPlayerPos(playerid, x, y, z);
-    for(new i = 0; i < MAX_PLAYERS; i++) {
+    
+    foreach(new i : Player) { // Usando o iterador moderno do open.mp (mais leve que MAX_PLAYERS)
         if(IsPlayerInRangeOfPoint(i, 20.0, x, y, z)) {
             SendPlayerMessageToPlayer(i, playerid, text);
         }
     }
-    return 0; 
+    return 0; // Retorna 0 para não duplicar a mensagem no chat global
 }
