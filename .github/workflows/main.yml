@@ -9,19 +9,31 @@ jobs:
       - name: Baixar codigo
         uses: actions/checkout@v4
 
+      - name: Instalar Suporte 32-bit
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib libc6:i386 libncurses5:i386 libstdc++6:i386
+
       - name: Configurar Compilador
         run: |
           chmod +x ./qawno/pawncc
-          export LD_LIBRARY_PATH=$(pwd)/qawno
+          echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno" >> $GITHUB_ENV
+          sudo ldconfig $GITHUB_WORKSPACE/qawno
 
-      - name: Compilar Game Mode
+      - name: Compilar Tudo (GM e Filterscripts)
         run: |
-          ./qawno/pawncc gamemodes/cidade_real.pwn -i"qawno/include" -o"gamemodes/cidade_real.amx" "-;+" "-(+" -d3
-
-      - name: Compilar Filterscripts (Spawn Novatos)
-        run: |
-          # Compila o script de spawn separado para não mexer na GM
-          ./qawno/pawncc filterscripts/spawn_novatos.pwn -i"qawno/include" -o"filterscripts/spawn_novatos.amx" "-;+" "-(+" -d3
+          # Compila todas as GameModes
+          for file in gamemodes/*.pwn; do
+            ./qawno/pawncc "$file" -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
+          done
+          
+          # Compila todos os Filterscripts automaticamente
+          if [ -d "filterscripts" ]; then
+            for file in filterscripts/*.pwn; do
+              ./qawno/pawncc "$file" -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
+            done
+          fi
 
       - name: Upload Binarios (AMX)
         if: success()
@@ -29,5 +41,5 @@ jobs:
         with:
           name: CidadeReal-Full-Package
           path: |
-            gamemodes/cidade_real.amx
-            filterscripts/spawn_novatos.amx
+            gamemodes/*.amx
+            filterscripts/*.amx
