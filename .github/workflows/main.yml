@@ -13,47 +13,46 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          # Instalando bibliotecas 32-bit compatíveis com Ubuntu 24.04 (Noble)
           sudo apt-get install -y gcc-multilib libc6:i386 libncurses6:i386 libstdc++6:i386 libsqlite3-0:i386
-          
-          # Criando links simbólicos para o compilador que exige versão 5 da libncurses
           sudo ln -s /usr/lib/i386-linux-gnu/libncurses.so.6 /usr/lib/i386-linux-gnu/libncurses.so.5
           sudo ln -s /usr/lib/i386-linux-gnu/libtinfo.so.6 /usr/lib/i386-linux-gnu/libtinfo.so.5
 
       - name: Baixar YSI e Includes do open.mp
         run: |
           mkdir -p qawno/include
-          # Clone com URL completa e aspas para evitar erro de parse no YAML
-          git clone --depth 1 "https://github.com/pawn-lang/YSI-Includes" qawno/include/YSI-Includes
+          # Clone YSI oficial
+          git clone --depth 1 "https://github.com" qawno/include/YSI-Includes
           cp -r qawno/include/YSI-Includes/YSI qawno/include/
           
-          # Baixando Includes básicas necessárias para 2026
-          wget "raw.githubusercontent.com" -O qawno/include/open.mp.inc
-          wget "raw.githubusercontent.com" -O qawno/include/a_samp.inc
+          # DOWNLOAD CORRIGIDO 2026: Links completos e oficiais
+          # Nota: Não baixamos a_samp.inc para evitar os 26 erros de conflito
+          wget "https://raw.githubusercontent.com" -O qawno/include/open.mp.inc
+          
+          # Baixando as dependências internas que o open.mp.inc exige (omp_*.inc)
+          git clone --depth 1 "https://github.com" qawno/include/omp_temp
+          cp qawno/include/omp_temp/*.inc qawno/include/
+          rm -rf qawno/include/omp_temp
 
       - name: Configurar Compilador
         run: |
-          # Garante que o executável tenha permissão
           chmod +x ./qawno/pawncc
-          # Define o caminho das bibliotecas
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno" >> $GITHUB_ENV
 
       - name: Compilar Tudo (Gamemodes e Filterscripts)
         run: |
-          # Compilando arquivos da pasta gamemodes
+          # O parâmetro -i- limpa os caminhos padrões e evita ler float.inc/string.inc antigos do sistema
           for file in gamemodes/*.pwn; do
             if [ -f "$file" ]; then
               echo "Compilando Gamemode: $file..."
-              ./qawno/pawncc "$file" -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
+              ./qawno/pawncc "$file" -i- -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
             fi
           done
           
-          # Compilando arquivos da pasta filterscripts (se existir)
           if [ -d "filterscripts" ]; then
             for file in filterscripts/*.pwn; do
               if [ -f "$file" ]; then
                 echo "Compilando Filterscript: $file..."
-                ./qawno/pawncc "$file" -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
+                ./qawno/pawncc "$file" -i- -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
               fi
             done
           fi
