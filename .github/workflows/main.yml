@@ -9,21 +9,22 @@ jobs:
       - name: Baixar codigo
         uses: actions/checkout@v4
 
-      - name: Instalar Suporte 32-bit e Libs
+      - name: Instalar Suporte 32-bit e Fix Libs
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          # Instalando bibliotecas essenciais para o compilador Pawn de 32-bits
-          sudo apt-get install -y gcc-multilib libc6:i386 libncurses5:i386 libstdc++6:i386 libsqlite3-0:i386
+          # Instalamos a libncurses6 (versão disponível) e demais libs 32-bit
+          sudo apt-get install -y gcc-multilib libc6:i386 libncurses6:i386 libstdc++6:i386 libsqlite3-0:i386
+          
+          # Criamos o link simbólico para resolver a dependência da libncurses5 exigida pelo pawncc
+          sudo ln -s /usr/lib/i386-linux-gnu/libncurses.so.6 /usr/lib/i386-linux-gnu/libncurses.so.5
+          sudo ln -s /usr/lib/i386-linux-gnu/libtinfo.so.6 /usr/lib/i386-linux-gnu/libtinfo.so.5
 
       - name: Baixar YSI e Includes do open.mp
         run: |
           mkdir -p qawno/include
-          # Baixando YSI 5.x oficial
           git clone --depth 1 github.com qawno/include/YSI-Includes
           cp -r qawno/include/YSI-Includes/YSI qawno/include/
-          
-          # Baixando Includes básicas (open.mp e a_samp)
           wget raw.githubusercontent.com -P qawno/include/
           wget raw.githubusercontent.com -P qawno/include/
 
@@ -34,7 +35,6 @@ jobs:
 
       - name: Compilar Tudo (Gamemodes e Filterscripts)
         run: |
-          # Compilação dos Gamemodes
           for file in gamemodes/*.pwn; do
             if [ -f "$file" ]; then
               echo "Compilando Gamemode: $file..."
@@ -42,7 +42,6 @@ jobs:
             fi
           done
           
-          # Compilação dos Filterscripts
           if [ -d "filterscripts" ]; then
             for file in filterscripts/*.pwn; do
               if [ -f "$file" ]; then
