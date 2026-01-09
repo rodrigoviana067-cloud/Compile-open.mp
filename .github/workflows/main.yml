@@ -28,14 +28,8 @@ jobs:
 
       - name: Baixar YSI (GitHub)
         run: |
-          mkdir -p qawno/include
-          git clone --depth 1 https://github.com/pawn-lang/YSI-Includes.git qawno/include/YSI-Includes
-          cp -r qawno/include/YSI-Includes/YSI qawno/include/
-
-      - name: Baixar includes do open.mp
-        run: |
-          git clone --depth 1 https://github.com/openmultiplayer/open.mp.git /tmp/openmp
-          cp /tmp/openmp/include/*.inc qawno/include/
+          git clone --depth 1 https://github.com/pawn-lang/YSI-Includes.git /tmp/ysi
+          cp -r /tmp/ysi/YSI qawno/include/
 
       - name: Configurar Pawn
         run: |
