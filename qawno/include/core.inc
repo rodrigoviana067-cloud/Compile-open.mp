@@ -1,10 +1,10 @@
-#if defined _INC_omp_core
+#if defined core.inc
 	#endinput
 #endif
-#define _INC_omp_core
+#define core.inc
 
 /**
- * <library name="omp_core" summary="open.mp core functions and defines.">
+ * <library name="omp.core" summary="open.mp core functions and defines.">
  *   <license>
  *     This Source Code Form is subject to the terms of the Mozilla Public License,
  *     v. 2.0. If a copy of the MPL was not distributed with this file, You can
