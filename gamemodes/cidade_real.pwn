@@ -1,5 +1,7 @@
+#include <core>
+#include <float>
+#include <string>
 #include <open.mp>
-#include <core.inc>
 
 main() {
     print("----------------------------------");
