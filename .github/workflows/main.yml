@@ -20,46 +20,51 @@ jobs:
           sudo apt update
           sudo apt install -y gcc-multilib libc6:i386 libstdc++6:i386 libncurses5:i386 libtinfo5:i386
 
-      - name: Instalar Dependências Pawn (open.mp e YSI)
+      - name: Instalar Bibliotecas do open.mp (Definitivo)
         run: |
           mkdir -p qawno/include
           
-          # 1. Baixar open.mp stdlib (O link que faltava)
-          git clone --depth 1 https://github.com/goph/stdlib
+          # 1. Clonar a biblioteca padrão oficial do open.mp (omp-stdlib)
+          # Isso resolve o erro: "Could not find the latest version of the open.mp includes"
+          git clone --depth 1 github.com /tmp/omp
+          cp -r /tmp/omp/*.inc qawno/include/
           
-          # 2. Baixar YSI Includes
-          git clone --depth 1  https://github.com/pawn-lang/YSI-Includes
+          # 2. Clonar a YSI (essencial para Cidade Real)
+          git clone --depth 1 github.com /tmp/ysi
+          cp -r /tmp/ysi/YSI qawno/include/
 
       - name: Preparar Compilador
         run: |
           chmod +x qawno/pawncc
+          # Define o caminho das bibliotecas para o executável Linux
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
-      - name: Compilar Gamemodes
+      - name: Compilar Cidade Real
         run: |
           mkdir -p build/gamemodes
+          mkdir -p build/filterscripts
+          
+          # Compilar Gamemodes
           for file in gamemodes/*.pwn; do
             [ -f "$file" ] || continue
-            echo "Compilando: $file"
+            echo "Compilando Gamemode: $file"
             ./qawno/pawncc "$file" \
               -i"qawno/include" \
               "-;+" "-(+" -d3 \
               -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
           done
 
-      - name: Compilar Filterscripts
-        run: |
-          mkdir -p build/filterscripts
+          # Compilar Filterscripts
           for file in filterscripts/*.pwn; do
             [ -f "$file" ] || continue
-            echo "Compilando: $file"
+            echo "Compilando Filterscript: $file"
             ./qawno/pawncc "$file" \
               -i"qawno/include" \
               "-;+" "-(+" -d3 \
               -o"build/filterscripts/$(basename "${file%.pwn}.amx")"
           done
 
-      - name: Upload AMX (Cidade Real RP)
+      - name: Upload AMX Final
         uses: actions/upload-artifact@v4
         with:
           name: CidadeRealRP-Compilado
