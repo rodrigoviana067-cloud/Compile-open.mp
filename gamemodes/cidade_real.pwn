@@ -1,4 +1,4 @@
-#include <open.mp>
+#include <open_mp>
 
 main() {
     print("----------------------------------");
