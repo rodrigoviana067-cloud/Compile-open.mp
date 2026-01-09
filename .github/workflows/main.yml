@@ -26,11 +26,11 @@ jobs:
           
           # 1. Clonar a biblioteca padrão oficial do open.mp (omp-stdlib)
           # Isso resolve o erro: "Could not find the latest version of the open.mp includes"
-          git clone --depth 1 github.com /tmp/omp
+          git clone --depth 1 https://github.com /tmp/omp
           cp -r /tmp/omp/*.inc qawno/include/
           
           # 2. Clonar a YSI (essencial para Cidade Real)
-          git clone --depth 1 github.com /tmp/ysi
+          git clone --depth 1 https://github.com /tmp/ysi
           cp -r /tmp/ysi/YSI qawno/include/
 
       - name: Preparar Compilador
