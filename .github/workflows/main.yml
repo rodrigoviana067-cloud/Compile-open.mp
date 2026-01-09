@@ -9,10 +9,13 @@ jobs:
       - name: Baixar codigo
         uses: actions/checkout@v4
 
-      - name: Instalar Suporte 32-bit
+      - name: Instalar Suporte 32-bit e Libs Antigas
         run: |
           sudo dpkg --add-architecture i386
+          # Adiciona repositório de segurança do Ubuntu 22.04 para achar a libncurses5
+          echo "deb http://security.ubuntu.com/ubuntu focal-security main universe" | sudo tee /etc/apt/sources.list.d/focal-security.list
           sudo apt-get update
+          # Agora instalamos as libs de 32 bits necessárias
           sudo apt-get install -y gcc-multilib libc6:i386 libncurses5:i386 libstdc++6:i386
 
       - name: Configurar Compilador
@@ -21,14 +24,13 @@ jobs:
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno" >> $GITHUB_ENV
           sudo ldconfig $GITHUB_WORKSPACE/qawno
 
-      - name: Compilar Tudo (GM e Filterscripts)
+      - name: Compilar Tudo Automático
         run: |
-          # Compila todas as GameModes
+          # Compila GameModes
           for file in gamemodes/*.pwn; do
             ./qawno/pawncc "$file" -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
           done
-          
-          # Compila todos os Filterscripts automaticamente
+          # Compila Filterscripts
           if [ -d "filterscripts" ]; then
             for file in filterscripts/*.pwn; do
               ./qawno/pawncc "$file" -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
