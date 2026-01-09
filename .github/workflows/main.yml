@@ -21,8 +21,7 @@ jobs:
         run: |
           mkdir -p qawno/include
           # Clone YSI oficial
-          git clone --depth 1 "https://github.com" qawno/include/YSI-Includes
-          cp -r qawno/include/YSI-Includes/YSI qawno/include/
+          https://github.com/pawn-lang/YSI-Includes
           
           # DOWNLOAD CORRIGIDO 2026: Links completos e oficiais
           # Nota: Não baixamos a_samp.inc para evitar os 26 erros de conflito
