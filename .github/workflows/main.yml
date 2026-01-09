@@ -1,55 +1,73 @@
-name: Compilar Cidade Real RP 2026
+name: Compilar Cidade Real RP
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Baixar codigo
+      - name: Baixar código
         uses: actions/checkout@v4
 
-      - name: Instalar Suporte 32-bit e Fix Libs
+      - name: Instalar libs 32-bit
         run: |
           sudo dpkg --add-architecture i386
-          sudo apt-get update
-          sudo apt-get install -y gcc-multilib libc6:i386 libncurses6:i386 libstdc++6:i386 libsqlite3-0:i386
-          sudo ln -s /usr/lib/i386-linux-gnu/libncurses.so.6 /usr/lib/i386-linux-gnu/libncurses.so.5
-          sudo ln -s /usr/lib/i386-linux-gnu/libtinfo.so.6 /usr/lib/i386-linux-gnu/libtinfo.so.5
+          sudo apt update
+          sudo apt install -y \
+            gcc-multilib \
+            libc6:i386 \
+            libstdc++6:i386 \
+            libncurses6:i386 \
+            libsqlite3-0:i386
 
-      - name: Baixar YSI e Includes do open.mp
+          sudo ln -sf /usr/lib/i386-linux-gnu/libncurses.so.6 /usr/lib/i386-linux-gnu/libncurses.so.5
+          sudo ln -sf /usr/lib/i386-linux-gnu/libtinfo.so.6 /usr/lib/i386-linux-gnu/libtinfo.so.5
+
+      - name: Baixar YSI (GitHub)
         run: |
           mkdir -p qawno/include
-          # AQUI ESTA O SEU LINK CORRIGIDO COM O COMANDO CLONE:
-          git clone --depth 1 "https://github.com/pawn-lang/YSI-Includes" qawno/include/YSI-Includes
+          git clone --depth 1 https://github.com/pawn-lang/YSI-Includes.git qawno/include/YSI-Includes
           cp -r qawno/include/YSI-Includes/YSI qawno/include/
-          
-          # Baixando a include principal do open.mp (Essencial para 2026)
-          wget "https://raw.githubusercontent.com" -O qawno/include/open.mp.inc
-          
-          # Baixando as sub-includes (omp_*.inc) para evitar os 26 erros
-          git clone --depth 1 "github.com" qawno/include/omp_temp
-          cp qawno/include/omp_temp/*.inc qawno/include/
-          rm -rf qawno/include/omp_temp
 
-      - name: Configurar Compilador
+      - name: Baixar includes do open.mp
         run: |
-          chmod +x ./qawno/pawncc
+          git clone --depth 1 https://github.com/openmultiplayer/open.mp.git /tmp/openmp
+          cp /tmp/openmp/include/*.inc qawno/include/
+
+      - name: Configurar Pawn
+        run: |
+          chmod +x qawno/pawncc
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno" >> $GITHUB_ENV
 
-      - name: Compilar Tudo (Gamemodes e Filterscripts)
+      - name: Compilar Gamemodes
         run: |
-          # O parametro -i- limpa o cache e evita conflitos de nomes
+          mkdir -p build/gamemodes
           for file in gamemodes/*.pwn; do
-            if [ -f "$file" ]; then
-              echo "Compilando Gamemode: $file..."
-              ./qawno/pawncc "$file" -i- -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
-            fi
+            [ -f "$file" ] || continue
+            echo "Compilando gamemode: $file"
+            ./qawno/pawncc "$file" \
+              -i"qawno/include" -i- \
+              "-;+" "-(+" -d3 \
+              -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
           done
 
-      - name: Upload Binarios (AMX)
-        if: success()
+      - name: Compilar Filterscripts
+        run: |
+          mkdir -p build/filterscripts
+          for file in filterscripts/*.pwn; do
+            [ -f "$file" ] || continue
+            echo "Compilando filterscript: $file"
+            ./qawno/pawncc "$file" \
+              -i"qawno/include" -i- \
+              "-;+" "-(+" -d3 \
+              -o"build/filterscripts/$(basename "${file%.pwn}.amx")"
+          done
+
+      - name: Upload AMX
         uses: actions/upload-artifact@v4
         with:
-          name: CidadeReal-AMX-2026
-          path: gamemodes/*.amx
+          name: CidadeRealRP-AMX
+          path: build/**
