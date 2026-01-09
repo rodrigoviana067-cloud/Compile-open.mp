@@ -18,16 +18,6 @@ jobs:
           sudo apt update
           sudo apt install -y gcc-multilib libc6:i386 libstdc++6:i386 libncurses5:i386 libtinfo5:i386
 
-      - name: Instalar Includes
-        run: |
-          mkdir -p qawno/include
-          URL_YSI="github.com"
-          
-          git clone --depth 1 "$URL_YSI" /tmp/ysi
-          
-          cp -r /tmp/omp/*.inc qawno/include/
-          cp -r /tmp/ysi/YSI qawno/include/
-
       - name: Preparar Compilador
         run: |
           chmod +x qawno/pawncc
