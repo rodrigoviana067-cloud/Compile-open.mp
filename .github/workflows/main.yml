@@ -12,44 +12,43 @@ jobs:
       - name: Instalar Suporte 32-bit e Libs
         run: |
           sudo dpkg --add-architecture i386
-          # Correção do link: Adicionado http:// para evitar erro de malformed URI
-          echo "deb security.ubuntu.com focal-security main universe" | sudo tee /etc/apt/sources.list.d/focal-security.list
           sudo apt-get update
+          # Instalando bibliotecas essenciais para o compilador Pawn de 32-bits
           sudo apt-get install -y gcc-multilib libc6:i386 libncurses5:i386 libstdc++6:i386 libsqlite3-0:i386
 
       - name: Baixar YSI e Includes do open.mp
         run: |
           mkdir -p qawno/include
-          # Baixando a biblioteca YSI 5.x oficial (essencial para servidores modernos)
+          # Baixando YSI 5.x oficial
           git clone --depth 1 github.com qawno/include/YSI-Includes
           cp -r qawno/include/YSI-Includes/YSI qawno/include/
           
-          # Baixando a include base do open.mp para garantir compatibilidade 2026
+          # Baixando Includes básicas (open.mp e a_samp)
           wget raw.githubusercontent.com -P qawno/include/
-          
-          # Baixando a include a_samp básica necessária
           wget raw.githubusercontent.com -P qawno/include/
 
       - name: Configurar Compilador
         run: |
-          # Garante que o compilador tenha permissão de execução
           chmod +x ./qawno/pawncc
-          # Adiciona o diretório do compilador ao PATH do sistema do GitHub
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno" >> $GITHUB_ENV
 
       - name: Compilar Tudo (Gamemodes e Filterscripts)
         run: |
-          # Compila todos os arquivos na pasta gamemodes
+          # Compilação dos Gamemodes
           for file in gamemodes/*.pwn; do
-            echo "Compilando $file..."
-            ./qawno/pawncc "$file" -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
+            if [ -f "$file" ]; then
+              echo "Compilando Gamemode: $file..."
+              ./qawno/pawncc "$file" -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
+            fi
           done
           
-          # Compila filterscripts se a pasta existir e não estiver vazia
-          if [ -d "filterscripts" ] && [ "$(ls -A filterscripts/*.pwn 2>/dev/null)" ]; then
+          # Compilação dos Filterscripts
+          if [ -d "filterscripts" ]; then
             for file in filterscripts/*.pwn; do
-              echo "Compilando Filterscript: $file..."
-              ./qawno/pawncc "$file" -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
+              if [ -f "$file" ]; then
+                echo "Compilando Filterscript: $file..."
+                ./qawno/pawncc "$file" -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
+              fi
             done
           fi
 
@@ -57,7 +56,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: CidadeReal-Full-Package-2026
+          name: CidadeReal-AMX-2026
           path: |
             gamemodes/*.amx
             filterscripts/*.amx
