@@ -8,34 +8,32 @@ on:
 
 jobs:
   build:
-    # Usar 22.04 é mais estável para compiladores Pawn antigos
     runs-on: ubuntu-22.04
 
     steps:
       - name: Baixar código
         uses: actions/checkout@v4
 
-      - name: Instalar dependências 32-bit
+      - name: Instalar dependências de sistema (32-bit)
         run: |
           sudo dpkg --add-architecture i386
           sudo apt update
-          # Instalando libncurses5 e dependências de 32 bits
-          sudo apt install -y \
-            gcc-multilib \
-            libc6:i386 \
-            libstdc++6:i386 \
-            libncurses5:i386 \
-            libtinfo5:i386
+          sudo apt install -y gcc-multilib libc6:i386 libstdc++6:i386 libncurses5:i386 libtinfo5:i386
 
-      - name: Configurar YSI e Includes
+      - name: Instalar Dependências Pawn (open.mp e YSI)
         run: |
           mkdir -p qawno/include
-          git clone --depth 1 https://github.com/pawn-lang/YSI-Includes
+          
+          # 1. Baixar open.mp stdlib (O link que faltava)
+          git clone --depth 1 github.com /tmp/omp
+          cp -r /tmp/omp/*.inc qawno/include/
+          
+          # 2. Baixar YSI Includes
+          git clone --depth 1  https://github.com/pawn-lang/YSI-Includes
 
       - name: Preparar Compilador
         run: |
           chmod +x qawno/pawncc
-          # Garante que o sistema encontre as bibliotecas na pasta do compilador
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Compilar Gamemodes
@@ -62,8 +60,8 @@ jobs:
               -o"build/filterscripts/$(basename "${file%.pwn}.amx")"
           done
 
-      - name: Upload AMX
+      - name: Upload AMX (Cidade Real RP)
         uses: actions/upload-artifact@v4
         with:
-          name: CidadeRealRP-AMX
+          name: CidadeRealRP-Compilado
           path: build/
