@@ -22,7 +22,7 @@ jobs:
         run: |
           mkdir -p qawno/include
           # Clone com URL completa e tratamento de erro
-          git clone --depth 1 github.com qawno/include/YSI-Includes
+          git clone --depth 1 https://github.com qawno/include/YSI-Includes
           cp -r qawno/include/YSI-Includes/YSI qawno/include/
           
           # Downloads das Includes Base
