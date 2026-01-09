@@ -21,11 +21,8 @@ jobs:
       - name: Instalar Includes
         run: |
           mkdir -p qawno/include
-          # Definindo as URLs em variaveis para nao haver erro de leitura
-          URL_OMP="github.com"
           URL_YSI="github.com"
           
-          git clone --depth 1 "$URL_OMP" /tmp/omp
           git clone --depth 1 "$URL_YSI" /tmp/ysi
           
           cp -r /tmp/omp/*.inc qawno/include/
