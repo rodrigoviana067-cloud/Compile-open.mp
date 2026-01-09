@@ -2,67 +2,50 @@ name: Compilar Cidade Real RP
 
 on:
   push:
-    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main", "master" ]
 
 jobs:
   build:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Baixar código do repositório
+      - name: Baixar codigo
         uses: actions/checkout@v4
 
-      - name: Instalar libs de sistema (32-bit)
+      - name: Instalar libs 32-bit
         run: |
           sudo dpkg --add-architecture i386
           sudo apt update
           sudo apt install -y gcc-multilib libc6:i386 libstdc++6:i386 libncurses5:i386 libtinfo5:i386
 
-      - name: Instalar Dependências (omp-stdlib e YSI)
+      - name: Instalar Includes
         run: |
           mkdir -p qawno/include
-          # Download das bibliotecas oficiais sem quebras de linha
-          git clone --depth 1 github.com /tmp/omp
-          git clone --depth 1 github.com /tmp/ysi
+          # Definindo as URLs em variaveis para nao haver erro de leitura
+          URL_OMP="github.com"
+          URL_YSI="github.com"
           
-          # Copiar arquivos para a pasta de inclusão
+          git clone --depth 1 "$URL_OMP" /tmp/omp
+          git clone --depth 1 "$URL_YSI" /tmp/ysi
+          
           cp -r /tmp/omp/*.inc qawno/include/
           cp -r /tmp/ysi/YSI qawno/include/
 
-      - name: Configurar Compilador
+      - name: Preparar Compilador
         run: |
           chmod +x qawno/pawncc
-          echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno" >> $GITHUB_ENV
 
-      - name: Compilar Script
+      - name: Compilar Gamemode
         run: |
           mkdir -p build/gamemodes
-          mkdir -p build/filterscripts
-          
-          # Compilando Gamemodes
           for file in gamemodes/*.pwn; do
             [ -f "$file" ] || continue
-            echo "Iniciando compilação: $file"
-            ./qawno/pawncc "$file" \
-              -i"qawno/include" \
-              "-;+" "-(+" -d3 \
-              -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
+            ./qawno/pawncc "$file" -i"qawno/include" "-;+" "-(+" -d3 -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
           done
 
-          # Compilando Filterscripts
-          for file in filterscripts/*.pwn; do
-            [ -f "$file" ] || continue
-            echo "Iniciando compilação: $file"
-            ./qawno/pawncc "$file" \
-              -i"qawno/include" \
-              "-;+" "-(+" -d3 \
-              -o"build/filterscripts/$(basename "${file%.pwn}.amx")"
-          done
-
-      - name: Upload dos AMX Gerados
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: CidadeRealRP-AMX-2026
+          name: CidadeReal-AMX
           path: build/
