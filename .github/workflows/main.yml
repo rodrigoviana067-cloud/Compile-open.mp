@@ -1,29 +1,16 @@
 name: Compilar Cidade Real RP 2026
-
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Baixar codigo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Compilar Game Mode
+      - name: Compilar
         run: |
-          # 1. Ajustar permissões
           chmod +x ./qawno/pawncc
-          
-          # 2. Configurar biblioteca do sistema
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/qawno
-          
-          # 3. Compilar (Comando simplificado para evitar erro de leitura)
+          export LD_LIBRARY_PATH=$(pwd)/qawno
+          # Comando limpo apontando para a subpasta include
           ./qawno/pawncc gamemodes/cidade_real.pwn -i"qawno/include" -o"gamemodes/cidade_real.amx" "-;+" "-(+" -d3
-
-      - name: Upload AMX
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: CidadeReal-AMX
-          path: gamemodes/cidade_real.amx
