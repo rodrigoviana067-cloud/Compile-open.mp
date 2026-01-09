@@ -1,4 +1,5 @@
 #include <open.mp>
+#include <core.inc>
 
 main() {
     print("----------------------------------");
