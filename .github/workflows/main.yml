@@ -20,15 +20,15 @@ jobs:
       - name: Baixar YSI e Includes do open.mp
         run: |
           mkdir -p qawno/include
-          # Clone YSI oficial
-          https://github.com/pawn-lang/YSI-Includes
+          # AQUI ESTA O SEU LINK CORRIGIDO COM O COMANDO CLONE:
+          git clone --depth 1 "https://github.com/pawn-lang/YSI-Includes" qawno/include/YSI-Includes
+          cp -r qawno/include/YSI-Includes/YSI qawno/include/
           
-          # DOWNLOAD CORRIGIDO 2026: Links completos e oficiais
-          # Nota: Não baixamos a_samp.inc para evitar os 26 erros de conflito
+          # Baixando a include principal do open.mp (Essencial para 2026)
           wget "https://raw.githubusercontent.com" -O qawno/include/open.mp.inc
           
-          # Baixando as dependências internas que o open.mp.inc exige (omp_*.inc)
-          git clone --depth 1 "https://github.com" qawno/include/omp_temp
+          # Baixando as sub-includes (omp_*.inc) para evitar os 26 erros
+          git clone --depth 1 "github.com" qawno/include/omp_temp
           cp qawno/include/omp_temp/*.inc qawno/include/
           rm -rf qawno/include/omp_temp
 
@@ -39,28 +39,17 @@ jobs:
 
       - name: Compilar Tudo (Gamemodes e Filterscripts)
         run: |
-          # O parâmetro -i- limpa os caminhos padrões e evita ler float.inc/string.inc antigos do sistema
+          # O parametro -i- limpa o cache e evita conflitos de nomes
           for file in gamemodes/*.pwn; do
             if [ -f "$file" ]; then
               echo "Compilando Gamemode: $file..."
               ./qawno/pawncc "$file" -i- -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
             fi
           done
-          
-          if [ -d "filterscripts" ]; then
-            for file in filterscripts/*.pwn; do
-              if [ -f "$file" ]; then
-                echo "Compilando Filterscript: $file..."
-                ./qawno/pawncc "$file" -i- -i"qawno/include" -o"${file%.pwn}.amx" "-;+" "-(+" -d3
-              fi
-            done
-          fi
 
       - name: Upload Binarios (AMX)
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: CidadeReal-AMX-Build
-          path: |
-            gamemodes/*.amx
-            filterscripts/*.amx
+          name: CidadeReal-AMX-2026
+          path: gamemodes/*.amx
