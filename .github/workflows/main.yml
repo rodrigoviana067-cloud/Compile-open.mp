@@ -1,16 +1,14 @@
-name: Compilar Cidade Real RP 2026
-on: [push]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Compilar
         run: |
           chmod +x ./qawno/pawncc
           export LD_LIBRARY_PATH=$(pwd)/qawno
-          # Comando limpo apontando para a subpasta include
+          # Compilando e garantindo que o arquivo vá para a pasta gamemodes
           ./qawno/pawncc gamemodes/cidade_real.pwn -i"qawno/include" -o"gamemodes/cidade_real.amx" "-;+" "-(+" -d3
+
+      - name: Upload AMX
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: CidadeReal-AMX
+          # O asterisco ajuda a encontrar o arquivo caso o caminho mude levemente
+          path: "**/*.amx"
