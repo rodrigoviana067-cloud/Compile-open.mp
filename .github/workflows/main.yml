@@ -24,7 +24,7 @@ jobs:
         run: |
           mkdir -p qawno/include
           # Clone com URL completa e aspas para evitar erro de parse no YAML
-          git clone --depth 1 "github.com" qawno/include/YSI-Includes
+          git clone --depth 1 "https://.https://github.com" qawno/include/YSI-Includes
           cp -r qawno/include/YSI-Includes/YSI qawno/include/
           
           # Baixando Includes básicas necessárias para 2026
