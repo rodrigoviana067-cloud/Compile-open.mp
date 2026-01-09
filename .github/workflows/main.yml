@@ -1,6 +1,6 @@
 name: Compilar Cidade Real RP 2026
 
-on: 
+on:
   push:
     branches: [ "main", "master" ]
   pull_request:
@@ -16,18 +16,22 @@ jobs:
 
       - name: Preparar Compilador e Compilar
         run: |
-          # 1. Dar permissão de execução ao compilador que você enviou
-          chmod +x ./qawno/pawncc
+          # 1. Dar permissao de execucao ao compilador Linux
+          chmod +x ${{ github.workspace }}/qawno/pawncc
           
-          # 2. Configurar o caminho para encontrar a libpawnc.so
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/qawno
+          # 2. Configurar a biblioteca compartilhada (libpawnc.so)
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ github.workspace }}/qawno
           
-          # 3. Executar a compilação com as aspas corretas para o Linux
-          # Certifique-se que o arquivo gamemodes/cidade_real.pwn existe
-          ./qawno/pawncc gamemodes/cidade_real.pwn -i:qawno/include -o:gamemodes/cidade_real.amx '-;+' '-(+' -d3
+          # 3. Executar a compilacao usando caminhos absolutos
+          # O parâmetro -i aponta diretamente para onde estao o core.inc e open.mp.inc
+          ${{ github.workspace }}/qawno/pawncc ${{ github.workspace }}/gamemodes/cidade_real.pwn \
+            -i"${{ github.workspace }}/qawno/include" \
+            -o"${{ github.workspace }}/gamemodes/cidade_real.amx" \
+            '-;+' '-(+' -d3
 
-      - name: Upload do arquivo compilado (AMX)
+      - name: Upload do arquivo AMX
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: CidadeReal-AMX
-          path: gamemodes/cidade_real.amx
+          path: ${{ github.workspace }}/gamemodes/cidade_real.amx
