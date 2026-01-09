@@ -4,7 +4,7 @@
 #define core.inc
 
 /**
- * <library name="omp.core" summary="open.mp core functions and defines.">
+ * <library name="core.inc" summary="open.mp core functions and defines.">
  *   <license>
  *     This Source Code Form is subject to the terms of the Mozilla Public License,
  *     v. 2.0. If a copy of the MPL was not distributed with this file, You can
@@ -26,7 +26,7 @@
 #pragma tabsize 4
 
 /**
- * <library>omp_core</library>
+ * <library>core.inc</library>
  */
 const INVALID_TIMER                            = 0;
 #define INVALID_TIMER                          0
