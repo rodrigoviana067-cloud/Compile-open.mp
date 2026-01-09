@@ -2,7 +2,9 @@ name: Compilar Cidade Real RP
 
 on:
   push:
+    branches: [ "main", "master" ]
   pull_request:
+    branches: [ "main", "master" ]
 
 jobs:
   build:
@@ -12,29 +14,25 @@ jobs:
       - name: Baixar código
         uses: actions/checkout@v4
 
-      - name: Instalar libs 32-bit
+      - name: Instalar libs 32-bit (Essencial)
         run: |
           sudo dpkg --add-architecture i386
           sudo apt update
-          sudo apt install -y \
-            gcc-multilib \
-            libc6:i386 \
-            libstdc++6:i386 \
-            libncurses6:i386 \
-            libsqlite3-0:i386
+          sudo apt install -y gcc-multilib libc6:i386 libstdc++6:i386 libncurses5:i386
 
-          sudo ln -sf /usr/lib/i386-linux-gnu/libncurses.so.6 /usr/lib/i386-linux-gnu/libncurses.so.5
-          sudo ln -sf /usr/lib/i386-linux-gnu/libtinfo.so.6 /usr/lib/i386-linux-gnu/libtinfo.so.5
-
-      - name: Baixar YSI (GitHub)
+      - name: Configurar YSI e Includes
         run: |
+          # Cria pasta se não existir
+          mkdir -p qawno/include
+          # Baixa a versão estável da YSI
           git clone --depth 1 https://github.com/pawn-lang/YSI-Includes.git /tmp/ysi
           cp -r /tmp/ysi/YSI qawno/include/
 
-      - name: Configurar Pawn
+      - name: Preparar Compilador
         run: |
           chmod +x qawno/pawncc
-          echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno" >> $GITHUB_ENV
+          # Adiciona o diretório atual ao PATH para o compilador achar as .so se necessário
+          echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Compilar Gamemodes
         run: |
@@ -43,7 +41,7 @@ jobs:
             [ -f "$file" ] || continue
             echo "Compilando gamemode: $file"
             ./qawno/pawncc "$file" \
-              -i"qawno/include" -i- \
+              -i"qawno/include" \
               "-;+" "-(+" -d3 \
               -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
           done
@@ -55,13 +53,13 @@ jobs:
             [ -f "$file" ] || continue
             echo "Compilando filterscript: $file"
             ./qawno/pawncc "$file" \
-              -i"qawno/include" -i- \
+              -i"qawno/include" \
               "-;+" "-(+" -d3 \
               -o"build/filterscripts/$(basename "${file%.pwn}.amx")"
           done
 
-      - name: Upload AMX
+      - name: Upload dos arquivos AMX
         uses: actions/upload-artifact@v4
         with:
-          name: CidadeRealRP-AMX
-          path: build/**
+          name: CidadeRealRP-Compilado
+          path: build/
