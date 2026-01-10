@@ -12,15 +12,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Baixar open.mp compiler
-      run: |
-        wget https://github.com/openmultiplayer/open.mp/releases/latest/download/open.mp-linux.tar.gz
-        tar -xzf open.mp-linux.tar.gz
-        chmod +x open.mp/pawncc
-
     - name: Compilar Gamemode
-      run: |
-        mkdir -p build/gamemodes
-        ./open.mp/pawncc gamemodes/cidade_real.pwn \
-        -iinclude \
-        -o build/gamemodes/cidade_real.amx
+      uses: samp-dev/pawn-compiler-action@master
+      with:
+        template: gamemodes/cidade_real.pwn
+        output: build/gamemodes/cidade_real.amx
+        # Isso diz para o compilador usar as includes que já estão na sua pasta
+        include: include 
+        # Caso precise de flags extras como compatibilidade:
+        arguments: -d3 -Z+ -O1
