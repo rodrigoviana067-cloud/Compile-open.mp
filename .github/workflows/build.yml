@@ -26,8 +26,8 @@ jobs:
             -o"build/gamemodes/cidade_real.amx" \
             -d3 -Z+ -O1
 
-                  - name: Compilar Filterscript
-                  run: |
+      - name: Compilar Filterscript
+        run: |
           mkdir -p build/filterscripts
 
           if ls filterscripts/*.pwn 1> /dev/null 2>&1; then
@@ -41,17 +41,16 @@ jobs:
           else
             echo "Nenhum filterscript encontrado"
           fi
-          
-          - name: Upload dos filterscripts compilados
+
+      - name: Upload dos filterscripts compilados
         uses: actions/upload-artifact@v4
         with:
           name: cidade_real_filterscripts
           path: build/filterscripts/*.amx
-          if-no-files-found:
-          
-          - name: Upload do gamemode compilado
+          if-no-files-found: ignore
+
+      - name: Upload do gamemode compilado
         uses: actions/upload-artifact@v4
         with:
-        
-        -name: cidade_real_gamemode
+          name: cidade_real_gamemode
           path: build/gamemodes/cidade_real.amx
