@@ -12,19 +12,47 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Compilar Gamemode (Pawn 3.10.11 / open.mp compat)
+      - name: Preparar ambiente
         run: |
           mkdir -p build/gamemodes
+          mkdir -p build/filterscripts
 
-          # Permissão para o compilador
           chmod +x qawno/pawncc
           chmod +x qawno/libpawnc.so
 
-          # Biblioteca dinâmica
           export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH
 
-          # Compilação
-          ./qawno/pawncc gamemodes/cidade_real.pwn \
-            -i"qawno/include" \
-            -o"build/gamemodes/cidade_real.amx" \
-            -d3 -Z+ -O1
+      - name: Compilar Gamemodes
+        run: |
+          for gm in gamemodes/*.pwn; do
+            echo "Compilando $gm"
+            ./qawno/pawncc "$gm" \
+              -i"qawno/include" \
+              -o"build/gamemodes/$(basename "${gm%.pwn}.amx")" \
+              -d3 -Z+ -O1
+          done
+
+      - name: Compilar Filterscripts
+        run: |
+          if ls filterscripts/*.pwn 1> /dev/null 2>&1; then
+            for fs in filterscripts/*.pwn; do
+              echo "Compilando $fs"
+              ./qawno/pawncc "$fs" \
+                -i"qawno/include" \
+                -o"build/filterscripts/$(basename "${fs%.pwn}.amx")" \
+                -d3 -Z+ -O1
+            done
+          else
+            echo "Nenhum filterscript encontrado"
+          fi
+
+      - name: Criar ZIP final
+        run: |
+          cd build
+          zip -r cidade_real_build.zip gamemodes filterscripts
+
+      - name: Upload do ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: cidade_real_build
+          path: build/cidade_real_build.zip
