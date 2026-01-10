@@ -31,7 +31,8 @@ public OnPlayerConnect(playerid) {
 }
 
 // CORREÇÃO: No open.mp o parâmetro text deve ser 'const'
-public OnPlayerText(playerid, const text[]) {
+public OnPlayerText(playerid, const text[])
+
     new Float:x, Float:y, Float:z;
     GetPlayerPos(playerid, x, y, z);
     
