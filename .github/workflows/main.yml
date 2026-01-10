@@ -7,19 +7,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Baixar open.mp oficial
+        run: |
+          wget https://github.com/openmultiplayer/open.mp/releases/latest/download/open.mp-linux-x86.tar.gz
+          tar -xzf open.mp-linux-x86.tar.gz
 
       - name: Compilar Gamemode (open.mp)
         run: |
           mkdir -p build/gamemodes
 
-          chmod +x qawno/pawncc
-          chmod +x qawno/libpawnc.so
+          chmod +x open.mp/pawncc
+          chmod +x open.mp/libpawnc.so
 
-          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/open.mp:$LD_LIBRARY_PATH
 
-          ./qawno/pawncc gamemodes/cidade_real.pwn \
-            -i"qawno/include" \
+          ./open.mp/pawncc gamemodes/cidade_real.pwn \
+            -i"open.mp/include" \
             -o"build/gamemodes/cidade_real.amx" \
             -d3 -Z+ -O1
