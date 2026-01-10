@@ -1,5 +1,4 @@
 #include <open.mp>
-#include <foreach>
 
 main()
 {
@@ -31,17 +30,20 @@ public OnPlayerText(playerid, text[])
     new Float:x, Float:y, Float:z;
     new msg[144];
     new name[MAX_PLAYER_NAME];
+    new i;
 
     GetPlayerPos(playerid, x, y, z);
     GetPlayerName(playerid, name, sizeof(name));
 
     format(msg, sizeof(msg), "%s(%d) diz: %s", name, playerid, text);
 
-    foreach (new i : Player);
+    for (i = 0; i < MAX_PLAYERS; i++)
     {
-        if (IsPlayerInRangeOfPoint(i, 20.0, x, y, z);
+        if (!IsPlayerConnected(i)) continue;
+
+        if (IsPlayerInRangeOfPoint(i, 20.0, x, y, z))
         {
-            SendClientMessage(i, 1, msg);
+            SendClientMessage(i, -1, msg);
         }
     }
 
