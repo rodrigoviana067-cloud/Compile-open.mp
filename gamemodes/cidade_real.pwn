@@ -1,5 +1,8 @@
-#include <open.mp>
-#include <core>
+#define SAMP_COMPAT          // Essencial para rodar funções clássicas no open.mp
+#include <open.mp>           // Carrega a base do servidor
+#include <foreach>           // Resolve o erro do "foreach" e "undefined symbol Player"
+
+// O <core> já está dentro do <open.mp>, não precisa repetir.
 
 // --- Definições do Servidor ---
 #define DIALOG_REGISTRO 1
