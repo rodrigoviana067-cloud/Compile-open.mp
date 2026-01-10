@@ -28,11 +28,26 @@ public OnPlayerSpawn(playerid)
 
 public OnPlayerText(playerid, text[])
 {
-    // Declarações no topo (regra do Pawn)
     new Float:x, Float:y, Float:z;
     new msg[144];
     new name[MAX_PLAYER_NAME];
-    new i;
+
+    GetPlayerPos(playerid, x, y, z);
+    GetPlayerName(playerid, name, sizeof(name));
+
+    format(msg, sizeof(msg), "%s(%d) diz: %s", name, playerid, text);
+
+    foreach (new i : Player)
+    {
+        if (IsPlayerInRangeOfPoint(i, 20.0, x, y, z))
+        {
+            SendClientMessage(i, -1, msg);
+        }
+    }
+
+    return 0;
+}
+
 
     // Posição e nome
     GetPlayerPos(playerid, x, y, z);
