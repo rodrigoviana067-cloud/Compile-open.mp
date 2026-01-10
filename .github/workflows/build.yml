@@ -1,58 +1,45 @@
-name: Build Cidade Real
+name: Compilar SA-MP Filterscripts
 
 on:
   push:
+    branches: [ main ]
   pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    # Passo 1: Fazer checkout do código
+    - name: Checkout do repositório
+      uses: actions/checkout@v3
 
-      - name: Compilar Gamemode (Pawn 3.10.11 / open.mp compat)
-        run: |
-          mkdir -p build/gamemodes
+    # Passo 2: Instalar Pawn Compiler
+    - name: Instalar Pawn Compiler
+      run: |
+        sudo apt update
+        sudo apt install -y pawno
 
-          chmod +x qawno/pawncc
-          chmod +x qawno/libpawnc.so
+    # Passo 3: Criar pasta de build
+    - name: Criar pasta de build
+      run: mkdir -p build/filterscripts
 
-          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH
+    # Passo 4: Compilar todos os filterscripts
+    - name: Compilar filterscripts
+      run: |
+        for file in filterscripts/*.pwn; do
+          base=$(basename "$file" .pwn)
+          echo "Compilando $file..."
+          pawncc "$file" -iqawno/include/YSI_Storage -o build/filterscripts/"$base".amx
+        done
 
-          ./qawno/pawncc gamemodes/cidade_real.pwn \
-            -i"qawno/include" \
-            -o"build/gamemodes/cidade_real.amx" \
-            -d3 -Z+ -O1
-            
-      - name: Compilar Filterscript
-        run: |
-          mkdir -p build/filterscripts
-
-          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH
-
-          if ls filterscripts/*.pwn 1> /dev/null 2>&1; then
-            for fs in filterscripts/*.pwn; do
-              echo "Compilando $fs"
-              ./qawno/pawncc "$fs" \
-                -i"qawno/include" \
-                -o"build/filterscripts/$(basename "${fs%.pwn}.amx")" \
-                -d3 -Z+ -O1
-            done
-          else
-            echo "Nenhum filterscript encontrado"
-          fi
-
-      - name: Upload dos filterscripts compilados
-        uses: actions/upload-artifact@v4
-        with:
-          name: cidade_real_filterscripts
-          path: build/filterscripts/*.amx
-          if-no-files-found: ignore
-
-      - name: Upload do gamemode compilado
-        uses: actions/upload-artifact@v4
-        with:
-          name: cidade_real_gamemode
-          path: build/gamemodes/cidade_real.amx
+    # Opcional: compilar gamemodes se houver
+    - name: Compilar gamemodes
+      run: |
+        mkdir -p build/gamemodes
+        for file in gamemodes/*.pwn; do
+          base=$(basename "$file" .pwn)
+          echo "Compilando $file..."
+          pawncc "$file" -iqawno/include/YSI_Storage -o build/gamemodes/"$base".amx
+        done
