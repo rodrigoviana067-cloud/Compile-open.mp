@@ -1,3 +1,4 @@
+#define SAMP_COMPAT 0
 #include <open.mp>
 #include <foreach>
 
@@ -11,8 +12,8 @@ main()
 public OnGameModeInit()
 {
     SetGameModeText("Cidade Real RP v1.0");
-    ShowPlayerMarkers(1);
-    ShowNameTags(1);
+    ShowPlayerMarkers(PLAYER_MARKERS_MODE_GLOBAL);
+    ShowNameTags(true);
     return 1;
 }
 
@@ -46,5 +47,5 @@ public OnPlayerText(Player:player, text[])
             SendClientMessage(i, -1, msg);
         }
     }
-    return 0; // bloqueia o chat padrão
+    return 0;
 }
