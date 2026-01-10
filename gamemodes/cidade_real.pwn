@@ -11,28 +11,30 @@ public OnGameModeInit() {
     return 1;
 }
 
-// CORREÇÃO ERRO 025: A tag 'Player:' deve estar ANTES do nome do parâmetro
-public OnPlayerConnect(Player:playerid)
+// Em modo SAMP_COMPAT, o cabeçalho NÃO pode ter a tag Player:
+public OnPlayerConnect(playerid)
 {
-    SendClientMessage(playerid, -1, "Bem-vindo à Cidade Real!");
+    // Mas as funções pedem a tag, então usamos Player:playerid aqui
+    SendClientMessage(Player:playerid, -1, "Bem-vindo à Cidade Real!");
     return 1;
 }
 
-// CORREÇÃO ERRO 025: Tag 'Player:' obrigatória e parâmetro 'text' deve ser 'const'
-public OnPlayerText(Player:playerid, const text[])
+// Removida a tag do cabeçalho para corrigir o Erro 025
+public OnPlayerText(playerid, const text[])
 {
     new Float:x, Float:y, Float:z;
-    GetPlayerPos(playerid, x, y, z);
+    // Adicionada a tag na função interna
+    GetPlayerPos(Player:playerid, x, y, z);
     
-    // CORREÇÃO ERRO 001/017: No foreach do open.mp, a sintaxe correta é esta:
-    foreach(new Player:i : Player)
+    // Corrigida a sintaxe do foreach para evitar o Erro 001 e 017
+    foreach(new i : Player)
     {
-        // CORREÇÃO WARNING 213: 'i' já tem a tag Player: por causa do loop acima
-        if(IsPlayerInRangeOfPoint(i, 20.0, x, y, z))
+        // Aqui convertemos o 'i' para Player:i para evitar o Tag Mismatch
+        if(IsPlayerInRangeOfPoint(Player:i, 20.0, x, y, z))
         {
             new msg[144];
-            format(msg, sizeof(msg), "%p diz: %s", playerid, text);
-            SendClientMessage(i, -1, msg);
+            format(msg, sizeof(msg), "%p diz: %s", Player:playerid, text);
+            SendClientMessage(Player:i, -1, msg);
         }
     }
     return 0; 
