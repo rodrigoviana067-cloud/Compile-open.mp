@@ -9,21 +9,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Baixar open.mp oficial
+      - name: Baixar open.mp
         run: |
           wget https://github.com/openmultiplayer/open.mp/releases/latest/download/open.mp-linux-x86.tar.gz
           tar -xzf open.mp-linux-x86.tar.gz
+          ls -la
 
-      - name: Compilar Gamemode (open.mp)
+      - name: Localizar pawncc
+        run: |
+          PAWNCC=$(find . -type f -name pawncc | head -n 1)
+
+          if [ -z "$PAWNCC" ]; then
+            echo "pawncc nao encontrado"
+            exit 1
+          fi
+
+          chmod +x "$PAWNCC"
+          echo "PAWNCC=$PAWNCC" >> $GITHUB_ENV
+
+      - name: Compilar Gamemode
         run: |
           mkdir -p build/gamemodes
 
-          chmod +x open.mp-linux-x86/pawncc
-          chmod +x open.mp-linux-x86/libpawnc.so
+          PAWN_DIR=$(dirname "$PAWNCC")
+          export LD_LIBRARY_PATH=$PAWN_DIR:$LD_LIBRARY_PATH
 
-          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/open.mp-linux-x86:$LD_LIBRARY_PATH
-
-          ./open.mp-linux-x86/pawncc gamemodes/cidade_real.pwn \
-            -i"open.mp-linux-x86/include" \
+          "$PAWNCC" gamemodes/cidade_real.pwn \
+            -i"$PAWN_DIR/include" \
             -o"build/gamemodes/cidade_real.amx" \
             -d3 -Z+ -O1
