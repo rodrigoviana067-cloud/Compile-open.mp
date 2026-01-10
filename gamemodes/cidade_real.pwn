@@ -47,22 +47,3 @@ public OnPlayerText(playerid, text[])
 
     return 0;
 }
-
-
-    // Posição e nome
-    GetPlayerPos(playerid, x, y, z);
-    GetPlayerName(playerid, name, sizeof(name));
-
-    format(msg, sizeof(msg), "%s(%d) diz: %s", name, playerid, text);
-
-    // Envio por proximidade
-    foreach (i : Player);
-    {
-        if (IsPlayerInRangeOfPoint(i, 20.0, x, y, z));
-        {
-            SendClientMessage(i, -1, msg);
-        }
-    }
-
-    return 0; // Bloqueia o chat padrão
-}
