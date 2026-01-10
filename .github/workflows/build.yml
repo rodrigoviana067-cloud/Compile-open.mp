@@ -1,8 +1,14 @@
-name: Compilar Projeto SA-MP (Automático)
+name: Compilar SA-MP Pawn (FINAL REAL)
 
 on:
   push:
-    branches: [ main ]
+    paths:
+      - "gamemodes/*.pwn"
+      - "filterscripts/*.pwn"
+  pull_request:
+    paths:
+      - "gamemodes/*.pwn"
+      - "filterscripts/*.pwn"
   workflow_dispatch:
 
 jobs:
@@ -11,54 +17,58 @@ jobs:
 
     steps:
     # 1️⃣ Checkout do repositório
-    - name: Checkout do repositório
-      uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v4
 
-    # 2️⃣ Instalar dependências básicas
-    - name: Instalar dependências
+    # 2️⃣ Baixar Pawn Compiler 3.10.10
+    - name: Baixar Pawn Compiler 3.10.10
       run: |
-        sudo apt update
-        sudo apt install -y unzip curl
+        set -e
+        wget https://github.com/pawn-lang/compiler/releases/download/v3.10.10/pawnc-3.10.10-linux.tar.gz
+        tar -xzf pawnc-3.10.10-linux.tar.gz
+        chmod +x pawnc-3.10.10-linux/bin/pawncc
 
-    # 3️⃣ Instalar sampctl (Pawn + build tool)
-    - name: Instalar sampctl
+    # 3️⃣ Instalar libpawnc.so
+    - name: Instalar libpawnc.so
       run: |
-        curl -sL https://get.sampctl.com | bash
-        echo "$HOME/.sampctl/bin" >> $GITHUB_PATH
+        set -e
+        LIB_PATH=$(find pawnc-3.10.10-linux -name "libpawnc.so" | head -n 1)
+        sudo cp "$LIB_PATH" /usr/lib/
+        sudo ldconfig
 
-    # 4️⃣ Criar pastas de saída
-    - name: Criar pastas de build
+    # 4️⃣ Compilar gamemodes
+    - name: Compilar gamemodes
       run: |
-        mkdir -p build/filterscripts
-        mkdir -p build/gamemodes
-
-    # 5️⃣ Compilar filterscripts automaticamente
-    - name: Compilar todos os filterscripts
-      run: |
-        for file in filterscripts/**/*.pwn filterscripts/*.pwn; do
-          if [ -f "$file" ]; then
-            base=$(basename "$file" .pwn)
-            echo "Compilando $file..."
-            sampctl package build -s "$file" -i qawno/include/YSI_Storage -o build/filterscripts/"$base".amx
-          fi
+        set -e
+        mkdir -p compiled/gamemodes
+        for file in gamemodes/*.pwn; do
+          [ -s "$file" ] || continue
+          name=$(basename "$file" .pwn)
+          echo "▶ Compilando gamemode: $file"
+          ./pawnc-3.10.10-linux/bin/pawncc "$file" \
+            -iinclude \
+            -i./pawnc-3.10.10-linux/include \
+            -o"compiled/gamemodes/$name.amx"
         done
 
-    # 6️⃣ Compilar gamemodes automaticamente
-    - name: Compilar todos os gamemodes
+    # 5️⃣ Compilar filterscripts
+    - name: Compilar filterscripts
       run: |
-        for file in gamemodes/**/*.pwn gamemodes/*.pwn; do
-          if [ -f "$file" ]; then
-            base=$(basename "$file" .pwn)
-            echo "Compilando $file..."
-            sampctl package build -s "$file" -i qawno/include/YSI_Storage -o build/gamemodes/"$base".amx
-          fi
+        set -e
+        mkdir -p compiled/filterscripts
+        for file in filterscripts/*.pwn; do
+          [ -s "$file" ] || continue
+          name=$(basename "$file" .pwn)
+          echo "▶ Compilando filterscript: $file"
+          ./pawnc-3.10.10-linux/bin/pawncc "$file" \
+            -iinclude \
+            -i./pawnc-3.10.10-linux/include \
+            -o"compiled/filterscripts/$name.amx"
         done
 
-    # 7️⃣ Salvar artefatos compilados
-    - name: Salvar artefatos
+    # 6️⃣ Upload dos AMX compilados
+    - name: Upload dos AMX
       uses: actions/upload-artifact@v4
       with:
-        name: amx-compilados
-        path: |
-          build/filterscripts/
-          build/gamemodes/
+        name: samp-amx
+        path: compiled/**/*.amx
