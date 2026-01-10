@@ -1,49 +1,42 @@
-#define SAMP_COMPAT 0
 #include <open.mp>
 #include <foreach>
 
 main()
 {
-    print("====================================");
-    print("  Cidade Real RP - open.mp iniciado ");
-    print("====================================");
+    print("Cidade Real RP - open.mp iniciado");
 }
 
 public OnGameModeInit()
 {
     SetGameModeText("Cidade Real RP v1.0");
-    ShowPlayerMarkers(PLAYER_MARKERS_MODE_GLOBAL);
-    ShowNameTags(true);
+    ShowPlayerMarkers(1);
+    ShowNameTags(1);
     return 1;
 }
 
-public OnPlayerConnect(Player:player)
+public OnPlayerConnect(playerid)
 {
-    SendClientMessage(player, 0x00FF00FF, "Bem-vindo à Cidade Real RP!");
-    SendClientMessage(player, -1, "Servidor rodando em open.mp nativo.");
+    SendClientMessage(playerid, -1, "Bem-vindo à Cidade Real RP!");
     return 1;
 }
 
-public OnPlayerSpawn(Player:player)
+public OnPlayerSpawn(playerid)
 {
-    SetPlayerPos(player, 1958.3783, 1343.1572, 15.3746);
-    SetPlayerFacingAngle(player, 270.0);
-    SetPlayerInterior(player, 0);
-    SetPlayerVirtualWorld(player, 0);
+    SetPlayerPos(playerid, 1958.3783, 1343.1572, 15.3746);
     return 1;
 }
 
-public OnPlayerText(Player:player, text[])
+public OnPlayerText(playerid, text[])
 {
     new Float:x, Float:y, Float:z;
-    GetPlayerPos(player, x, y, z);
+    GetPlayerPos(playerid, x, y, z);
 
-    foreach (new Player:i)
+    foreach (new i : Player)
     {
         if (IsPlayerInRangeOfPoint(i, 20.0, x, y, z))
         {
             new msg[144];
-            format(msg, sizeof msg, "%p diz: %s", player, text);
+            format(msg, sizeof msg, "%d diz: %s", playerid, text);
             SendClientMessage(i, -1, msg);
         }
     }
