@@ -1,10 +1,6 @@
-name: Build
+name: Build Cidade Real
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -14,14 +10,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Compile Gamemode
-        uses: pwn-lang/compiler-action@v1
-        with:
-          # Caminho para o seu arquivo principal
-          entrypoint: "gamemodes/cidade_real.pwn"
-          # Pasta onde estão suas includes locais
-          include: "include"
-          # Onde salvar o arquivo final
-          output: "build/gamemodes/cidade_real.amx"
-          # Argumentos de compilação
-          args: "-d3 -Z+ -O1"
+      - name: Compilar Gamemode
+        run: |
+          # Criar pasta de saída
+          mkdir -p build/gamemodes
+          
+          # Dar permissão para o seu compilador que está na pasta qawno
+          chmod +x qawno/pawncc
+          
+          # EXECUTAR A COMPILAÇÃO
+          # -i indica as pastas de include (estamos usando a sua qawno/include)
+          ./qawno/pawncc gamemodes/cidade_real.pwn \
+            -iqawno/include \
+            -iinclude \
+            -o build/gamemodes/cidade_real.amx \
+            -d3 -Z+ -O1
