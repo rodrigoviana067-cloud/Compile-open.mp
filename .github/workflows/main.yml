@@ -12,7 +12,7 @@ jobs:
       - name: Baixar codigo
         uses: actions/checkout@v4
 
-      - name: Instalar libs 32-bit
+      - name: Instalar libs 32-bit (Ubuntu 2026 Ready)
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
@@ -23,12 +23,24 @@ jobs:
             libncurses5:i386 \
             libtinfo5:i386
 
-      - name: Preparar Compilador e Permissoes
+      - name: Preparar Compilador e Includes
         run: |
-          # Garante que o compilador e as pastas de include tenham permissão de leitura/execução
+          # 1. Permissão de execução para o compilador
           chmod +x qawno/pawncc
-          find qawno/include -type d -exec chmod 755 {} +
-          find qawno/include -type f -exec chmod 644 {} +
+          
+          # 2. Corrigir estrutura do open.mp (Modularização)
+          # O open.mp.inc busca <omp/core>, mas seus arquivos são omp_core.inc
+          mkdir -p qawno/include/omp
+          cp qawno/include/omp_*.inc qawno/include/omp/
+          
+          # Renomeia omp_core.inc para core.inc, etc, dentro da pasta omp
+          cd qawno/include/omp
+          for f in omp_*.inc; do 
+            mv "$f" "${f#omp_}"
+          done
+          cd ../../../
+          
+          # 3. Configurar ambiente de bibliotecas
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Compilar Gamemode
@@ -37,18 +49,17 @@ jobs:
           
           for file in gamemodes/*.pwn; do
             [ -f "$file" ] || continue
-            echo "Compilando $file..."
+            echo "----------------------------------------"
+            echo "Compilando: $file"
             
-            # Aqui incluímos a pasta base e a pasta 'omp' explicitamente
             ./qawno/pawncc "$file" \
               -i"qawno/include" \
-              -i"qawno/include/omp" \
               "-;+" "-(+" -d3 \
               -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
           done
 
-      - name: Upload
+      - name: Upload Artifacts (AMX)
         uses: actions/upload-artifact@v4
         with:
           name: CidadeReal-AMX
-          path: build/
+          path: build/gamemodes/
