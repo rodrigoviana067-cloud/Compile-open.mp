@@ -1,6 +1,5 @@
 #define SAMP_COMPAT
 #include <open.mp>
-#include <foreach>
 
 main()
 {
@@ -24,8 +23,10 @@ public OnPlayerText(playerid, const text[])
     new Float:x, Float:y, Float:z;
     GetPlayerPos(playerid, x, y, z);
 
-    foreach (new i : players)
+    for (new i = 0; i < MAX_PLAYERS; i++)
     {
+        if (!IsPlayerConnected(i)) continue;
+
         if (IsPlayerInRangeOfPoint(i, 20.0, x, y, z))
         {
             new msg[144];
@@ -33,5 +34,5 @@ public OnPlayerText(playerid, const text[])
             SendClientMessage(i, -1, msg);
         }
     }
-    return 0; // bloqueia o chat padrão
+    return 0;
 }
