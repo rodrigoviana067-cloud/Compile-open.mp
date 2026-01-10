@@ -10,22 +10,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Compilar Gamemode
+      - name: Compilar Gamemode (open.mp)
         run: |
-          # 1. Criar pasta de saída
           mkdir -p build/gamemodes
-          
-          # 2. Dar permissão de execução ao compilador e biblioteca
-          chmod +x qawno/pawncc
+
+          chmod +x qawno/omp-compiler
           chmod +x qawno/libpawnc.so
-          
-          # 3. Configurar o caminho da biblioteca para o sistema reconhecer
+
           export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH
-          
-          # 4. EXECUTAR A COMPILAÇÃO
-          # Passamos a pasta include E a subpasta omp-stdlib para o compilador
-          ./qawno/pawncc gamemodes/cidade_real.pwn \
+
+          ./qawno/omp-compiler gamemodes/cidade_real.pwn \
             -i"qawno/include" \
-            -i"qawno/include/omp-stdlib" \
             -o"build/gamemodes/cidade_real.amx" \
             -d3 -Z+ -O1
