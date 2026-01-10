@@ -16,22 +16,18 @@ jobs:
         run: |
           mkdir -p build/gamemodes
 
-          # Permissão para o compilador
           chmod +x qawno/pawncc
           chmod +x qawno/libpawnc.so
 
-          # Biblioteca dinâmica
           export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH
 
-          # Compilação
           ./qawno/pawncc gamemodes/cidade_real.pwn \
             -i"qawno/include" \
             -o"build/gamemodes/cidade_real.amx" \
             -d3 -Z+ -O1
 
-                  - name: Upload do gamemode compilado
+      - name: Upload do gamemode compilado
         uses: actions/upload-artifact@v4
         with:
           name: cidade_real_gamemode
           path: build/gamemodes/cidade_real.amx
-
