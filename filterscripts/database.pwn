@@ -1,8 +1,8 @@
 #include <open.mp>
 #include <a_samp>
-
-#include <YSI_Coding/y_hooks>
-#include <YSI_Storage/y_ini>
+#include <qawno/include/YSI_Core/y_core>
+#include <qawno/include/YSI_Storage/y_ini>
+#include <qawno/include/YSI_Coding/y_hooks>
 
 // =====================
 // ENUMS E VARIÁVEIS
