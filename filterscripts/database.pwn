@@ -1,6 +1,7 @@
+#include <YSI_Core\y_core>
+#include <YSI_Storage\y_ini>
 #include <a_samp>
 #include <open.mp>
-#include <y_ini>    // YSI_Storage
 
 // =====================
 // ENUMS E VARIÁVEIS
