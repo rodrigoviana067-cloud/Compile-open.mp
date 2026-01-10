@@ -14,12 +14,12 @@ jobs:
         run: |
           mkdir -p build/gamemodes
 
-          chmod +x qawno/omp-compiler
+          chmod +x qawno/pawncc
           chmod +x qawno/libpawnc.so
 
           export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH
 
-          ./qawno/omp-compiler gamemodes/cidade_real.pwn \
+          ./qawno/pawncc gamemodes/cidade_real.pwn \
             -i"qawno/include" \
             -o"build/gamemodes/cidade_real.amx" \
             -d3 -Z+ -O1
