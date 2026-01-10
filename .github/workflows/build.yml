@@ -47,6 +47,7 @@ jobs:
           echo "▶ Compilando gamemode (open.mp): $file"
           ./pawnc-3.10.10-linux/bin/pawncc "$file" \
             -iqawno/include \
+            -iqawno/include/YSI_Storage \
             -i./pawnc-3.10.10-linux/include \
             -o"compiled/gamemodes/$name.amx"
         done
@@ -62,6 +63,7 @@ jobs:
           echo "▶ Compilando filterscript (open.mp): $file"
           ./pawnc-3.10.10-linux/bin/pawncc "$file" \
             -iqawno/include \
+            -iqawno/include/YSI_Storage \
             -i./pawnc-3.10.10-linux/include \
             -o"compiled/filterscripts/$name.amx"
         done
