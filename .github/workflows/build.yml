@@ -1,4 +1,4 @@
-name: Compilar SA-MP Pawn (FINAL REAL)
+name: Compilar open.mp Pawn (Cidade Real)
 
 on:
   push:
@@ -36,7 +36,7 @@ jobs:
         sudo cp "$LIB_PATH" /usr/lib/
         sudo ldconfig
 
-    # 4️⃣ Compilar gamemodes
+    # 4️⃣ Compilar gamemodes (open.mp)
     - name: Compilar gamemodes
       run: |
         set -e
@@ -44,14 +44,14 @@ jobs:
         for file in gamemodes/*.pwn; do
           [ -s "$file" ] || continue
           name=$(basename "$file" .pwn)
-          echo "▶ Compilando gamemode: $file"
+          echo "▶ Compilando gamemode (open.mp): $file"
           ./pawnc-3.10.10-linux/bin/pawncc "$file" \
-            -iinclude \
+            -iqawno/include \
             -i./pawnc-3.10.10-linux/include \
             -o"compiled/gamemodes/$name.amx"
         done
 
-    # 5️⃣ Compilar filterscripts
+    # 5️⃣ Compilar filterscripts (open.mp)
     - name: Compilar filterscripts
       run: |
         set -e
@@ -59,9 +59,9 @@ jobs:
         for file in filterscripts/*.pwn; do
           [ -s "$file" ] || continue
           name=$(basename "$file" .pwn)
-          echo "▶ Compilando filterscript: $file"
+          echo "▶ Compilando filterscript (open.mp): $file"
           ./pawnc-3.10.10-linux/bin/pawncc "$file" \
-            -iinclude \
+            -iqawno/include \
             -i./pawnc-3.10.10-linux/include \
             -o"compiled/filterscripts/$name.amx"
         done
@@ -70,5 +70,5 @@ jobs:
     - name: Upload dos AMX
       uses: actions/upload-artifact@v4
       with:
-        name: samp-amx
+        name: openmp-amx
         path: compiled/**/*.amx
