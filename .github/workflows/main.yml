@@ -12,32 +12,24 @@ jobs:
       - name: Baixar codigo
         uses: actions/checkout@v4
 
-      - name: Instalar libs 32-bit (Ubuntu 2026)
+      - name: Instalar libs 32-bit (Ubuntu 2026 Ready)
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             gcc-multilib libc6:i386 libstdc++6:i386 libncurses5:i386 libtinfo5:i386
 
-      - name: Preparar Estrutura de Includes
+      - name: Organizar e Corrigir Includes
         run: |
           chmod +x qawno/pawncc
-          
-          # 1. Garante que a pasta 'omp' exista
+          # 1. Cria a pasta modular 'omp' exigida pelo open.mp
           mkdir -p qawno/include/omp
           
-          # 2. Copia os arquivos omp_*.inc para dentro da pasta 'omp'
-          # Se os arquivos já estiverem lá ou na raiz, este comando resolve
-          cp qawno/include/omp_*.inc qawno/include/omp/ 2>/dev/null || true
-          
-          # 3. RENOMEAÇÃO CRÍTICA: Remove 'omp_' e força MINÚSCULAS
-          # O erro "cannot read from file: core" ocorre porque o compilador procura 'core.inc'
+          # 2. Copia e limpa nomes (remove prefixos omp_ ou omp. e força minúsculas)
+          cp qawno/include/omp*.* qawno/include/omp/ 2>/dev/null || true
           cd qawno/include/omp
-          for f in *.inc; do
-            # Remove o prefixo omp_ se existir
-            newname="${f#omp_}"
-            # Converte para minúsculas (essencial no Linux do GitHub Actions)
-            newname=$(echo "$newname" | tr '[:upper:]' '[:lower:]')
+          for f in *; do
+            newname=$(echo "$f" | tr '[:upper:]' '[:lower:]' | sed 's/^omp[_.]//')
             mv "$f" "$newname" 2>/dev/null || true
           done
           cd ../../../
@@ -47,13 +39,11 @@ jobs:
       - name: Compilar Gamemode
         run: |
           mkdir -p build/gamemodes
-          
           for file in gamemodes/*.pwn; do
             [ -f "$file" ] || continue
-            echo "----------------------------------------"
             echo "Compilando: $file"
             
-            # Adicionamos -i"qawno/include/omp" e também a raiz do compilador
+            # O ajuste principal: Incluímos a pasta qawno/include E a qawno/include/omp
             ./qawno/pawncc "$file" \
               -i"qawno/include" \
               -i"qawno/include/omp" \
@@ -61,7 +51,7 @@ jobs:
               -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
           done
 
-      - name: Upload
+      - name: Upload AMX
         uses: actions/upload-artifact@v4
         with:
           name: CidadeReal-AMX
