@@ -12,8 +12,18 @@ jobs:
 
       - name: Compilar Gamemode
         run: |
-          # 1. Criar pasta de saída
           mkdir -p build/gamemodes
+          chmod +x qawno/pawncc
+          chmod +x qawno/libpawnc.so
+          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH
+          
+          # Adicionamos caminhos extras para garantir que o open.mp ache os arquivos internos
+          ./qawno/pawncc gamemodes/cidade_real.pwn \
+            -i"qawno/include" \
+            -i"qawno/include/omp-stdlib" \
+            -o"build/gamemodes/cidade_real.amx" \
+            -d3 -Z+ -O1
+
           
           # 2. Dar permissão total na pasta qawno
           chmod +x qawno/pawncc
