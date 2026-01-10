@@ -12,30 +12,20 @@ jobs:
 
       - name: Compilar Gamemode
         run: |
+          # 1. Criar pasta de saída
           mkdir -p build/gamemodes
+          
+          # 2. Dar permissão de execução ao compilador e biblioteca
           chmod +x qawno/pawncc
           chmod +x qawno/libpawnc.so
+          
+          # 3. Configurar o caminho da biblioteca para o sistema reconhecer
           export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH
           
-          # Adicionamos caminhos extras para garantir que o open.mp ache os arquivos internos
+          # 4. EXECUTAR A COMPILAÇÃO
+          # Passamos a pasta include E a subpasta omp-stdlib para o compilador
           ./qawno/pawncc gamemodes/cidade_real.pwn \
             -i"qawno/include" \
             -i"qawno/include/omp-stdlib" \
-            -o"build/gamemodes/cidade_real.amx" \
-            -d3 -Z+ -O1
-
-          
-          # 2. Dar permissão total na pasta qawno
-          chmod +x qawno/pawncc
-          chmod +x qawno/libpawnc.so
-          
-          # 3. Configurar o caminho das bibliotecas (Crucial para o erro 127)
-          # Usamos o caminho absoluto com $GITHUB_WORKSPACE
-          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH
-          
-          # 4. Executar a compilação
-          # -i: aponta para as suas includes no qawno
-          ./qawno/pawncc gamemodes/cidade_real.pwn \
-            -i"qawno/include" \
             -o"build/gamemodes/cidade_real.amx" \
             -d3 -Z+ -O1
