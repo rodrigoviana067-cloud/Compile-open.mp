@@ -18,21 +18,26 @@ public OnGameModeInit() {
     return 1;
 }
 
-// Se o erro persistir na linha abaixo, mude para: public OnPlayerConnect(const playerid)
-public OnPlayerConnect(playerid) {
+// CORREÇÃO LINHA 29: No open.mp puro, algumas versões exigem a tag Player: ou apenas playerid.
+// Se o erro persistir, a include open.mp.inc que você está usando exige 'const'
+public OnPlayerConnect(playerid)
+{
     SendClientMessage(playerid, 0x00FF00FF, "Bem-vindo à Cidade Real! Motor: open.mp");
     ShowPlayerDialog(playerid, DIALOG_REGISTRO, DIALOG_STYLE_MSGBOX, "Cidadania", "Deseja iniciar sua vida nesta cidade?", "Sim", "Sair");
     return 1;
 }
 
-// No open.mp 2026, a assinatura OBRIGATÓRIA é esta:
-public OnPlayerText(playerid, const text[]) {
+// CORREÇÃO OnPlayerText: Obrigatório 'const text[]'
+public OnPlayerText(playerid, const text[])
+{
     new Float:x, Float:y, Float:z;
     GetPlayerPos(playerid, x, y, z);
     
-    foreach(i : Player) {
-        if(IsPlayerInRangeOfPoint(i, 20.0, x, y, z)) {
-            new msg[144]; // Adicionado tamanho da string
+    foreach(i : Player)
+    {
+        if(IsPlayerInRangeOfPoint(i, 20.0, x, y, z))
+        {
+            new msg[144]; 
             format(msg, sizeof(msg), "%p diz: %s", playerid, text);
             SendClientMessage(i, -1, msg);
         }
