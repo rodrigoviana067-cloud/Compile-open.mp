@@ -12,12 +12,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Instalar Compilador Pawn
+      run: |
+        wget github.com
+        tar -xzf pawnc-3.10.11-linux.tar.gz
+        sudo cp bin/pawncc /usr/local/bin/
+        chmod +x /usr/local/bin/pawncc
+
     - name: Compilar Gamemode
-      uses: samp-dev/pawn-compiler-action@master
-      with:
-        template: gamemodes/cidade_real.pwn
-        output: build/gamemodes/cidade_real.amx
-        # Isso diz para o compilador usar as includes que já estão na sua pasta
-        include: include 
-        # Caso precise de flags extras como compatibilidade:
-        arguments: -d3 -Z+ -O1
+      run: |
+        mkdir -p build/gamemodes
+        pawncc gamemodes/cidade_real.pwn \
+        -iinclude \
+        -o build/gamemodes/cidade_real.amx \
+        -d3 -Z+ -O1
