@@ -12,28 +12,34 @@ jobs:
       - name: Baixar codigo
         uses: actions/checkout@v4
 
-      - name: Instalar libs 32-bit (Ubuntu 2026 Ready)
+      - name: Instalar libs 32-bit (Ubuntu 2026)
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             gcc-multilib libc6:i386 libstdc++6:i386 libncurses5:i386 libtinfo5:i386
 
-      - name: Organizar e Corrigir Includes
+      - name: Arrumar Pastas open.mp
         run: |
           chmod +x qawno/pawncc
-          # 1. Cria a pasta modular 'omp' exigida pelo open.mp
+          
+          # 1. Criar a pasta modular física
           mkdir -p qawno/include/omp
           
-          # 2. Copia e limpa nomes (remove prefixos omp_ ou omp. e força minúsculas)
+          # 2. Mover todos os arquivos que começam com 'omp' para dentro da pasta 'omp'
+          # Aceita omp_core.inc, omp.core.inc ou omp_*.inc
           cp qawno/include/omp*.* qawno/include/omp/ 2>/dev/null || true
+          
+          # 3. Renomear para o padrão que o open.mp.inc exige (sem prefixo e minúsculo)
           cd qawno/include/omp
-          for f in *; do
-            newname=$(echo "$f" | tr '[:upper:]' '[:lower:]' | sed 's/^omp[_.]//')
+          for f in *.inc; do
+            # Transforma em minúsculo e remove 'omp_' ou 'omp.' do nome
+            newname=$(echo "$f" | tr '[:upper:]' '[:lower:]' | sed -E 's/^omp[._]//')
             mv "$f" "$newname" 2>/dev/null || true
           done
           cd ../../../
           
+          # 4. Ajustar variável de ambiente para o compilador
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Compilar Gamemode
@@ -43,15 +49,15 @@ jobs:
             [ -f "$file" ] || continue
             echo "Compilando: $file"
             
-            # O ajuste principal: Incluímos a pasta qawno/include E a qawno/include/omp
+            # -i"qawno/include" permite que ele ache o open.mp.inc
+            # E o open.mp.inc achará a pasta 'omp' dentro de 'include'
             ./qawno/pawncc "$file" \
               -i"qawno/include" \
-              -i"qawno/include/omp" \
               "-;+" "-(+" -d3 \
               -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
           done
 
-      - name: Upload AMX
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: CidadeReal-AMX
