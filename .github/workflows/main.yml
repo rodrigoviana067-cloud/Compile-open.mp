@@ -1,28 +1,27 @@
-name: Compilar Gamemode open.mp
+name: Build
 
 on:
   push:
+    branches: [ "main" ]
   pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Instalar Compilador Pawn
-      run: |
-        wget github.com
-        tar -xzf pawnc-3.10.11-linux.tar.gz
-        sudo cp bin/pawncc /usr/local/bin/
-        chmod +x /usr/local/bin/pawncc
-
-    - name: Compilar Gamemode
-      run: |
-        mkdir -p build/gamemodes
-        pawncc gamemodes/cidade_real.pwn \
-        -iinclude \
-        -o build/gamemodes/cidade_real.amx \
-        -d3 -Z+ -O1
+      - name: Compile Gamemode
+        uses: pwn-lang/compiler-action@v1
+        with:
+          # Caminho para o seu arquivo principal
+          entrypoint: "gamemodes/cidade_real.pwn"
+          # Pasta onde estão suas includes locais
+          include: "include"
+          # Onde salvar o arquivo final
+          output: "build/gamemodes/cidade_real.amx"
+          # Argumentos de compilação
+          args: "-d3 -Z+ -O1"
