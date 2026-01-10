@@ -15,19 +15,27 @@ jobs:
       - name: Instalar libs 32-bit
         run: |
           sudo dpkg --add-architecture i386
-          sudo apt update
-          sudo apt install -y gcc-multilib libc6:i386 libstdc++6:i386 libncurses5:i386 libtinfo5:i386
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gcc-multilib \
+            libc6:i386 \
+            libstdc++6:i386 \
+            libncurses5:i386 \
+            libtinfo5:i386
 
       - name: Preparar Compilador
         run: |
           chmod +x qawno/pawncc
-          echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno" >> $GITHUB_ENV
+          # Define o caminho das bibliotecas para o compilador 32-bit funcionar
+          echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Compilar Gamemode
         run: |
           mkdir -p build/gamemodes
+          # Loop para compilar todos os arquivos .pwn encontrados na pasta gamemodes
           for file in gamemodes/*.pwn; do
             [ -f "$file" ] || continue
+            echo "Compilando $file..."
             ./qawno/pawncc "$file" -i"qawno/include" "-;+" "-(+" -d3 -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
           done
 
