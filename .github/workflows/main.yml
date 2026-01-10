@@ -12,34 +12,32 @@ jobs:
       - name: Baixar codigo
         uses: actions/checkout@v4
 
-      - name: Instalar libs 32-bit (Ubuntu 2026)
+      - name: Instalar libs 32-bit (Ubuntu 2026 Ready)
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             gcc-multilib libc6:i386 libstdc++6:i386 libncurses5:i386 libtinfo5:i386
 
-      - name: Arrumar Pastas open.mp
+      - name: Corrigir Nomes das Includes
         run: |
           chmod +x qawno/pawncc
           
-          # 1. Criar a pasta modular física
-          mkdir -p qawno/include/omp
-          
-          # 2. Mover todos os arquivos que começam com 'omp' para dentro da pasta 'omp'
-          # Aceita omp_core.inc, omp.core.inc ou omp_*.inc
-          cp qawno/include/omp*.* qawno/include/omp/ 2>/dev/null || true
-          
-          # 3. Renomear para o padrão que o open.mp.inc exige (sem prefixo e minúsculo)
+          # Entra na pasta omp que você criou
           cd qawno/include/omp
-          for f in *.inc; do
-            # Transforma em minúsculo e remove 'omp_' ou 'omp.' do nome
-            newname=$(echo "$f" | tr '[:upper:]' '[:lower:]' | sed -E 's/^omp[._]//')
-            mv "$f" "$newname" 2>/dev/null || true
-          done
-          cd ../../../
           
-          # 4. Ajustar variável de ambiente para o compilador
+          # Cria cópias sem o prefixo 'omp_' para que o compilador as encontre
+          # Exemplo: omp_player.inc vira player.inc
+          for f in omp_*.inc; do
+            cp "$f" "${f#omp_}" 2>/dev/null || true
+          done
+          
+          # Garante que todos os nomes estão em minúsculo (Linux fix)
+          for f in *.inc; do
+            mv "$f" "${f,,}" 2>/dev/null || true
+          done
+          
+          cd ../../../
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Compilar Gamemode
@@ -49,10 +47,10 @@ jobs:
             [ -f "$file" ] || continue
             echo "Compilando: $file"
             
-            # -i"qawno/include" permite que ele ache o open.mp.inc
-            # E o open.mp.inc achará a pasta 'omp' dentro de 'include'
+            # Adicionamos -i"qawno/include/omp" explicitamente
             ./qawno/pawncc "$file" \
               -i"qawno/include" \
+              -i"qawno/include/omp" \
               "-;+" "-(+" -d3 \
               -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
           done
