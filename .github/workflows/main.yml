@@ -12,35 +12,36 @@ jobs:
       - name: Baixar codigo
         uses: actions/checkout@v4
 
-      - name: Instalar libs 32-bit (Ubuntu 2026 Ready)
+      - name: Instalar libs 32-bit (Ubuntu 2026)
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            gcc-multilib \
-            libc6:i386 \
-            libstdc++6:i386 \
-            libncurses5:i386 \
-            libtinfo5:i386
+            gcc-multilib libc6:i386 libstdc++6:i386 libncurses5:i386 libtinfo5:i386
 
-      - name: Preparar Compilador e Includes
+      - name: Preparar Estrutura de Includes
         run: |
-          # 1. Permissão de execução para o compilador
           chmod +x qawno/pawncc
           
-          # 2. Corrigir estrutura do open.mp (Modularização)
-          # O open.mp.inc busca <omp/core>, mas seus arquivos são omp_core.inc
+          # 1. Garante que a pasta 'omp' exista
           mkdir -p qawno/include/omp
-          cp qawno/include/omp_*.inc qawno/include/omp/
           
-          # Renomeia omp_core.inc para core.inc, etc, dentro da pasta omp
+          # 2. Copia os arquivos omp_*.inc para dentro da pasta 'omp'
+          # Se os arquivos já estiverem lá ou na raiz, este comando resolve
+          cp qawno/include/omp_*.inc qawno/include/omp/ 2>/dev/null || true
+          
+          # 3. RENOMEAÇÃO CRÍTICA: Remove 'omp_' e força MINÚSCULAS
+          # O erro "cannot read from file: core" ocorre porque o compilador procura 'core.inc'
           cd qawno/include/omp
-          for f in omp_*.inc; do 
-            mv "$f" "${f#omp_}"
+          for f in *.inc; do
+            # Remove o prefixo omp_ se existir
+            newname="${f#omp_}"
+            # Converte para minúsculas (essencial no Linux do GitHub Actions)
+            newname=$(echo "$newname" | tr '[:upper:]' '[:lower:]')
+            mv "$f" "$newname" 2>/dev/null || true
           done
           cd ../../../
           
-          # 3. Configurar ambiente de bibliotecas
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Compilar Gamemode
@@ -52,13 +53,15 @@ jobs:
             echo "----------------------------------------"
             echo "Compilando: $file"
             
+            # Adicionamos -i"qawno/include/omp" e também a raiz do compilador
             ./qawno/pawncc "$file" \
               -i"qawno/include" \
+              -i"qawno/include/omp" \
               "-;+" "-(+" -d3 \
               -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
           done
 
-      - name: Upload Artifacts (AMX)
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: CidadeReal-AMX
