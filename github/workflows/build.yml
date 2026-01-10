@@ -1,0 +1,30 @@
+name: Build Cidade Real
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compilar Gamemode (Pawn 3.10.11 / open.mp compat)
+        run: |
+          mkdir -p build/gamemodes
+
+          # Permissão para o compilador
+          chmod +x qawno/pawncc
+          chmod +x qawno/libpawnc.so
+
+          # Biblioteca dinâmica
+          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH
+
+          # Compilação
+          ./qawno/pawncc gamemodes/cidade_real.pwn \
+            -i"qawno/include" \
+            -o"build/gamemodes/cidade_real.amx" \
+            -d3 -Z+ -O1
