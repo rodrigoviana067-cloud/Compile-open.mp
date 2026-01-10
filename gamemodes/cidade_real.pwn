@@ -11,28 +11,30 @@ public OnGameModeInit() {
     return 1;
 }
 
-// CORREÇÃO: Adicionada a tag Player: ao playerid
-public OnPlayerConnect(Player:playerid)
+// Em algumas versões do omp-stdlib, o protótipo ainda espera playerid sem tag
+// Para resolver o erro 025 e o tag mismatch da linha 17:
+public OnPlayerConnect(playerid)
 {
-    SendClientMessage(playerid, -1, "Bem-vindo à Cidade Real!");
+    // Usamos _:playerid para remover a tag se necessário
+    SendClientMessage(Player:playerid, -1, "Bem-vindo à Cidade Real!");
     return 1;
 }
 
-// CORREÇÃO: Adicionada a tag Player: ao playerid
-public OnPlayerText(Player:playerid, const text[])
+public OnPlayerText(playerid, const text[])
 {
     new Float:x, Float:y, Float:z;
-    GetPlayerPos(playerid, x, y, z);
+    GetPlayerPos(Player:playerid, x, y, z);
     
-    // O foreach precisa reconhecer a tag Player: para evitar o warning 213
-    foreach(new Player:i : Player)
+    // Corrigindo o foreach para evitar o erro de identificador/new
+    foreach(new i : Player)
     {
-        if(IsPlayerInRangeOfPoint(i, 20.0, x, y, z))
+        // Forçamos a tag Player: no IsPlayerInRangeOfPoint para o open.mp
+        if(IsPlayerInRangeOfPoint(Player:i, 20.0, x, y, z))
         {
             new msg[144];
-            // %p é um especificador do open.mp que pega o nome do jogador automaticamente
-            format(msg, sizeof(msg), "%p diz: %s", playerid, text);
-            SendClientMessage(i, -1, msg);
+            // No format, usamos _: para garantir que o ID passe como inteiro
+            format(msg, sizeof(msg), "ID %d diz: %s", _:playerid, text);
+            SendClientMessage(Player:i, -1, msg);
         }
     }
     return 0; 
