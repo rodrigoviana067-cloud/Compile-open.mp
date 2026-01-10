@@ -18,12 +18,15 @@ jobs:
         run: |
           mkdir -p build/gamemodes
 
-          chmod +x open.mp/pawncc
-          chmod +x open.mp/libpawnc.so
+          # Encontrar a pasta extraída automaticamente
+          OMP_DIR=$(find . -maxdepth 1 -type d -name "open.mp*")
 
-          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/open.mp:$LD_LIBRARY_PATH
+          chmod +x "$OMP_DIR/pawncc"
+          chmod +x "$OMP_DIR/libpawnc.so"
 
-          ./open.mp/pawncc gamemodes/cidade_real.pwn \
-            -i"open.mp/include" \
+          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/$OMP_DIR:$LD_LIBRARY_PATH
+
+          "$OMP_DIR/pawncc" gamemodes/cidade_real.pwn \
+            -i"$OMP_DIR/include" \
             -o"build/gamemodes/cidade_real.amx" \
             -d3 -Z+ -O1
