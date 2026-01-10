@@ -18,24 +18,24 @@ public OnGameModeInit() {
     return 1;
 }
 
+// Se o erro persistir na linha abaixo, mude para: public OnPlayerConnect(const playerid)
 public OnPlayerConnect(playerid) {
     SendClientMessage(playerid, 0x00FF00FF, "Bem-vindo à Cidade Real! Motor: open.mp");
     ShowPlayerDialog(playerid, DIALOG_REGISTRO, DIALOG_STYLE_MSGBOX, "Cidadania", "Deseja iniciar sua vida nesta cidade?", "Sim", "Sair");
     return 1;
 }
 
-// CORREÇÃO DEFINITIVA: const text[] e uso correto de chaves
+// No open.mp 2026, a assinatura OBRIGATÓRIA é esta:
 public OnPlayerText(playerid, const text[]) {
     new Float:x, Float:y, Float:z;
     GetPlayerPos(playerid, x, y, z);
     
     foreach(i : Player) {
         if(IsPlayerInRangeOfPoint(i, 20.0, x, y, z)) {
-            new msg[144];
-            // No open.mp, %p traduz para o nome do jogador
+            new msg[144]; // Adicionado tamanho da string
             format(msg, sizeof(msg), "%p diz: %s", playerid, text);
             SendClientMessage(i, -1, msg);
         }
     }
-    return 0; // Retorna 0 para a mensagem não sair no chat global
+    return 0; 
 }
