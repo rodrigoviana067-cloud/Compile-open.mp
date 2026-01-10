@@ -25,10 +25,12 @@ jobs:
             -i"qawno/include" \
             -o"build/gamemodes/cidade_real.amx" \
             -d3 -Z+ -O1
-
+            
       - name: Compilar Filterscript
         run: |
           mkdir -p build/filterscripts
+
+          export LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH
 
           if ls filterscripts/*.pwn 1> /dev/null 2>&1; then
             for fs in filterscripts/*.pwn; do
