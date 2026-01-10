@@ -11,28 +11,30 @@ public OnGameModeInit() {
     return 1;
 }
 
-// --- TENTE ESTA VERSÃO PRIMEIRO ---
-// Se o erro persistir na linha abaixo, mude para: public OnPlayerConnect(Player:playerid)
+// Em open.mp, o parâmetro DEVE ter a tag 'Player:'
 public OnPlayerConnect(Player:playerid)
 {
+    // SendClientMessage também exige que o ID tenha a tag Player:
     SendClientMessage(playerid, -1, "Bem-vindo à Cidade Real!");
     return 1;
 }
 
-// No open.mp 2026, a assinatura do OnPlayerText DEVE ser exatamente esta:
-public OnPlayerText(playerid, const text[])
+// CORREÇÃO: No open.mp, o primeiro parâmetro de OnPlayerText deve ser 'Player:playerid'
+public OnPlayerText(Player:playerid, const text[])
 {
     new Float:x, Float:y, Float:z;
     GetPlayerPos(playerid, x, y, z);
     
-    foreach(i : Player)
+    // O iterador 'Player' do foreach já lida com a tag corretamente
+    foreach(new Player:i : Player)
     {
         if(IsPlayerInRangeOfPoint(i, 20.0, x, y, z))
         {
             new msg[144];
+            // %p é um especificador do open.mp para exibir o nome do jogador via ID
             format(msg, sizeof(msg), "%p diz: %s", playerid, text);
             SendClientMessage(i, -1, msg);
         }
     }
-    return 0; 
+    return 0; // Retorna 0 para não mostrar a mensagem padrão no chat global
 }
