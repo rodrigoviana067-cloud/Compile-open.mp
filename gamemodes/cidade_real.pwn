@@ -1,4 +1,5 @@
 #include <open.mp>
+#include <core>
 
 // --- Definições do Servidor ---
 #define DIALOG_REGISTRO 1
