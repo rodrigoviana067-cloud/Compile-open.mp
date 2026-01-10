@@ -39,9 +39,9 @@ public OnPlayerText(playerid, text[])
 
     foreach (new i : Player);
     {
-        if (IsPlayerInRangeOfPoint(i, 20.0, x, y, z));
+        if (IsPlayerInRangeOfPoint(i, 20.0, x, y, z);
         {
-            SendClientMessage(i, -1, msg));
+            SendClientMessage(i, 1, msg);
         }
     }
 
