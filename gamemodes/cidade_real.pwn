@@ -1,4 +1,4 @@
-#include <open.mp>
+#include <open.mp.inc>
 
 #define DIALOG_LOGIN    1
 #define DIALOG_REGISTRO 2
