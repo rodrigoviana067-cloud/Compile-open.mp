@@ -3,52 +3,43 @@
 
 main()
 {
-    print("----------------------------------");
-    print(" Cidade Real RP - open.mp iniciado ");
-    print("----------------------------------");
+    print("Cidade Real RP - Iniciado");
 }
 
 public OnGameModeInit()
 {
     SetGameModeText("Cidade Real RP v1.0");
-
-    // Correção de Tags para open.mp
     ShowPlayerMarkers(PLAYER_MARKERS_MODE_GLOBAL); 
     ShowNameTags(true); 
-
-    // Veículo de teste no spawn
-    AddStaticVehicle(411, 1958.3783, 1343.1572, 15.3746, 0.0, 1, 1); 
-    
     return 1;
 }
 
 public OnPlayerConnect(playerid)
 {
-    SendClientMessage(playerid, -1, "{00FF00}Bem-vindo à Cidade Real RP!");
+    SendClientMessage(playerid, -1, "Bem-vindo!");
     return 1;
 }
 
 public OnPlayerSpawn(playerid)
 {
     SetPlayerPos(playerid, 1958.3783, 1343.1572, 15.3746);
-    SetPlayerFacingAngle(playerid, 90.0);
     return 1;
 }
 
 public OnPlayerText(playerid, text[])
 {
+    // 1. Declare todas as variáveis no topo da função
     new Float:x, Float:y, Float:z;
-    GetPlayerPos(playerid, x, y, z);
-
-    // Variáveis para o chat
-    new msg[144]; // CORREÇÃO: msg deve ter um tamanho definido, ex: 144
+    new msg[144]; // O ERRO ESTAVA AQUI: Faltava o tamanho [144]
     new name[MAX_PLAYER_NAME];
+
+    // 2. Execute a lógica
+    GetPlayerPos(playerid, x, y, z);
     GetPlayerName(playerid, name, sizeof(name));
     
-    // Formata a mensagem fora do loop para economizar processamento
     format(msg, sizeof(msg), "%s(%d) diz: %s", name, playerid, text);
 
-    // Loop de chat local usando foreach
+    // 3. O loop foreach
     foreach (new i : Player)
     {
         if (IsPlayerInRangeOfPoint(i, 20.0, x, y, z))
@@ -57,6 +48,5 @@ public OnPlayerText(playerid, text[])
         }
     }
 
-    // Retorna 0 para desativar o chat global padrão do SA-MP/open.mp
-    return 0; 
+    return 0; // Retorna 0 para evitar mensagem duplicada
 }
