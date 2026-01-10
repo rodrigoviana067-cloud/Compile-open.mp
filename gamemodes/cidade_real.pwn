@@ -13,7 +13,7 @@ public OnGameModeInit() {
 
 // --- TENTE ESTA VERSÃO PRIMEIRO ---
 // Se o erro persistir na linha abaixo, mude para: public OnPlayerConnect(Player:playerid)
-public OnPlayerConnect(playerid)
+public OnPlayerConnect(Player:playerid)
 {
     SendClientMessage(playerid, -1, "Bem-vindo à Cidade Real!");
     return 1;
