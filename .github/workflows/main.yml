@@ -23,20 +23,28 @@ jobs:
             libncurses5:i386 \
             libtinfo5:i386
 
-      - name: Preparar Compilador
+      - name: Preparar Compilador e Permissoes
         run: |
+          # Garante que o compilador e as pastas de include tenham permissão de leitura/execução
           chmod +x qawno/pawncc
-          # Define o caminho das bibliotecas para o compilador 32-bit funcionar
+          find qawno/include -type d -exec chmod 755 {} +
+          find qawno/include -type f -exec chmod 644 {} +
           echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH" >> $GITHUB_ENV
 
       - name: Compilar Gamemode
         run: |
           mkdir -p build/gamemodes
-          # Loop para compilar todos os arquivos .pwn encontrados na pasta gamemodes
+          
           for file in gamemodes/*.pwn; do
             [ -f "$file" ] || continue
             echo "Compilando $file..."
-            ./qawno/pawncc "$file" -i"qawno/include" "-;+" "-(+" -d3 -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
+            
+            # Aqui incluímos a pasta base e a pasta 'omp' explicitamente
+            ./qawno/pawncc "$file" \
+              -i"qawno/include" \
+              -i"qawno/include/omp" \
+              "-;+" "-(+" -d3 \
+              -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
           done
 
       - name: Upload
