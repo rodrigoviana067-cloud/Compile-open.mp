@@ -1,4 +1,4 @@
-name: Compilar Cidade Real RP
+name: Compilar Gamemode open.mp
 
 on:
   push:
@@ -6,57 +6,21 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Baixar codigo
-        uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
 
-      - name: Instalar libs 32-bit (Ubuntu 2026 Ready)
-        run: |
-          sudo dpkg --add-architecture i386
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            gcc-multilib libc6:i386 libstdc++6:i386 libncurses5:i386 libtinfo5:i386
+    - name: Baixar open.mp compiler
+      run: |
+        wget https://github.com/openmultiplayer/open.mp/releases/latest/download/open.mp-linux.tar.gz
+        tar -xzf open.mp-linux.tar.gz
+        chmod +x open.mp/pawncc
 
-      - name: Corrigir Nomes das Includes
-        run: |
-          chmod +x qawno/pawncc
-          
-          # Entra na pasta omp que você criou
-          cd qawno/include/omp
-          
-          # Cria cópias sem o prefixo 'omp_' para que o compilador as encontre
-          # Exemplo: omp_player.inc vira player.inc
-          for f in omp_*.inc; do
-            cp "$f" "${f#omp_}" 2>/dev/null || true
-          done
-          
-          # Garante que todos os nomes estão em minúsculo (Linux fix)
-          for f in *.inc; do
-            mv "$f" "${f,,}" 2>/dev/null || true
-          done
-          
-          cd ../../../
-          echo "LD_LIBRARY_PATH=$GITHUB_WORKSPACE/qawno:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-
-      - name: Compilar Gamemode
-        run: |
-          mkdir -p build/gamemodes
-          for file in gamemodes/*.pwn; do
-            [ -f "$file" ] || continue
-            echo "Compilando: $file"
-            
-            # Adicionamos -i"qawno/include/omp" explicitamente
-            ./qawno/pawncc "$file" \
-              -i"qawno/include" \
-              -i"qawno/include/omp" \
-              "-;+" "-(+" -d3 \
-              -o"build/gamemodes/$(basename "${file%.pwn}.amx")"
-          done
-
-      - name: Upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: CidadeReal-AMX
-          path: build/gamemodes/
+    - name: Compilar Gamemode
+      run: |
+        mkdir -p build/gamemodes
+        ./open.mp/pawncc gamemodes/cidade_real.pwn \
+        -iinclude \
+        -o build/gamemodes/cidade_real.amx
