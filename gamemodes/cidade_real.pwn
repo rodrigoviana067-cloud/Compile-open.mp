@@ -1,8 +1,6 @@
-#define SAMP_COMPAT          // Essencial para rodar funções clássicas no open.mp
-#include <open.mp>           // Carrega a base do servidor
-#include <foreach>           // Resolve o erro do "foreach" e "undefined symbol Player"
-
-// O <core> já está dentro do <open.mp>, não precisa repetir.
+#define SAMP_COMPAT
+#include <open.mp>
+#include <foreach>
 
 // --- Definições do Servidor ---
 #define DIALOG_REGISTRO 1
@@ -17,8 +15,8 @@ main() {
 public OnGameModeInit() {
     SetGameModeText("Cidade Real v1.0");
     
-    // Posição Inicial: Pershing Square (Perto da Estação Central)
-    AddPlayerClass(0, 1481.0, -1750.0, 13.5, 0.0, 0, 0, 0, 0, 0, 0); // Removed weapon definitions
+    // Posição Inicial: Pershing Square
+    AddPlayerClass(0, 1481.0, -1750.0, 13.5, 0.0, 0, 0, 0, 0, 0, 0); 
     
     // Veículo de teste (Trem do Metrô)
     AddStaticVehicle(537, 1481.0, -1740.0, 13.5, 0.0, 1, 1);
@@ -27,24 +25,24 @@ public OnGameModeInit() {
 }
 
 public OnPlayerConnect(playerid) {
-    SendClientMessage(playerid, 0x00FF00FF, "Bem-vindo à Cidade Real! Você está usando o motor open.mp.");
-    
-    // Exemplo de Dialog moderno
-    ShowPlayerDialog(playerid, DIALOG_REGISTRO, DIALOG_STYLE_MSGBOX, "Cidadania", "Você deseja iniciar sua vida nesta cidade?", "Sim", "Sair");
+    SendClientMessage(playerid, 0x00FF00FF, "Bem-vindo à Cidade Real! Motor: open.mp");
+    ShowPlayerDialog(playerid, DIALOG_REGISTRO, DIALOG_STYLE_MSGBOX, "Cidadania", "Deseja iniciar sua vida nesta cidade?", "Sim", "Sair");
     return 1;
 }
 
+// CORREÇÃO: No open.mp o parâmetro text deve ser 'const'
 public OnPlayerText(playerid, const text[]) {
-    // Chat de proximidade simples para teste
     new Float:x, Float:y, Float:z;
     GetPlayerPos(playerid, x, y, z);
     
-    foreach(new i : Player) {
+    // CORREÇÃO DA MACRO: Não use 'new' dentro do parênteses do foreach
+    foreach(i : Player) {
         if(IsPlayerInRangeOfPoint(i, 20.0, x, y, z)) {
             new msg[144];
+            // %p pega o nome do jogador automaticamente no open.mp
             format(msg, sizeof(msg), "%p diz: %s", playerid, text);
             SendClientMessage(i, -1, msg);
         }
     }
-    return 0; 
+    return 0; // Retorna 0 para não duplicar a mensagem no chat global
 }
