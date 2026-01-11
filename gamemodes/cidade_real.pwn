@@ -1,5 +1,8 @@
-#include <open.mp.inc>
-
+#include <open.mp>
+#include <a_samp>
+#include <YSI_Core/y_core>
+#include <YSI_Storage/y_ini>
+#include <YSI_Coding/y_hooks>
 #define DIALOG_LOGIN    1
 #define DIALOG_REGISTRO 2
 
