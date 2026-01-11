@@ -54,7 +54,7 @@ jobs:
             name=$(basename "$file" .pwn)
             echo "▶ Compilando gamemode (open.mp): $file"
             ./pawnc-3.10.10-linux/bin/pawncc "$file" \
-              ls -l qawno/include/opem.mp \
+              -iqawno/include/opem.mp \
               -iqawno/include/YSI_Core \
               -iqawno/include/YSI_Storage \
               -i./pawnc-3.10.10-linux/include \
