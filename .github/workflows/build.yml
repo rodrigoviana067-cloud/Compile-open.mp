@@ -40,9 +40,9 @@ jobs:
     - name: Verificar includes YSI
       run: |
         echo "Listando YSI_Core:"
-        ls -l awno/include/YSI_Core
+        ls -l qawno/include/YSI_Core
         echo "Listando YSI_Storage:"
-        ls -l awno/include/YSI_Storage
+        ls -l qawno/include/YSI_Storage
 
     # 5️⃣ Compilar gamemodes
     - name: Compilar gamemodes
