@@ -36,21 +36,23 @@ jobs:
         sudo cp "$LIB_PATH" /usr/lib/
         sudo ldconfig
 
-        - name: Compilar gamemodes
-        run: |
+    # 4️⃣ Compilar gamemodes
+    - name: Compilar gamemodes
+      run: |
         set -e
         mkdir -p compiled/gamemodes
         for file in gamemodes/*.pwn; do
-        [ -s "$file" ] || continue
-        name=$(basename "$file" .pwn)
-      working-directory: $file"./pawnc-3.10.10-linux/bin/pawncc "$file" \
-        -iqawno/include \
-        -iqawno/include/YSI_Storage \
-        -i./pawnc-3.10.10-linux/include \
-        -o"compiled/gamemodes/$name.amx"
+          [ -s "$file" ] || continue
+          name=$(basename "$file" .pwn)
+          echo "▶ Compilando gamemode (open.mp): $file"
+          ./pawnc-3.10.10-linux/bin/pawncc "$file" \
+            -iqawno/include \
+            -iqawno/include/YSI_Storage \
+            -i./pawnc-3.10.10-linux/include \
+            -o"compiled/gamemodes/$name.amx"
         done
 
-    # 5️⃣ Compilar filterscripts (open.mp)
+    # 5️⃣ Compilar filterscripts
     - name: Compilar filterscripts
       run: |
         set -e
