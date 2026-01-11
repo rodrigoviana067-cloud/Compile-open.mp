@@ -36,7 +36,15 @@ jobs:
         sudo cp "$LIB_PATH" /usr/lib/
         sudo ldconfig
 
-    # 4️⃣ Compilar gamemodes
+    # 4️⃣ Checar se YSI_Core e YSI_Storage existem
+    - name: Verificar includes YSI
+      run: |
+        echo "Listando YSI_Core:"
+        ls -l awno/include/YSI_Core
+        echo "Listando YSI_Storage:"
+        ls -l awno/include/YSI_Storage
+
+    # 5️⃣ Compilar gamemodes
     - name: Compilar gamemodes
       run: |
         set -e
@@ -47,12 +55,12 @@ jobs:
           echo "▶ Compilando gamemode (open.mp): $file"
           ./pawnc-3.10.10-linux/bin/pawncc "$file" \
             -iqawno/include \
+            -iqawno/include/YSI_Core \
             -iqawno/include/YSI_Storage \
             -i./pawnc-3.10.10-linux/include \
             -o"compiled/gamemodes/$name.amx"
-        done
 
-    # 5️⃣ Compilar filterscripts
+    # 6️⃣ Compilar filterscripts
     - name: Compilar filterscripts
       run: |
         set -e
@@ -63,12 +71,12 @@ jobs:
           echo "▶ Compilando filterscript (open.mp): $file"
           ./pawnc-3.10.10-linux/bin/pawncc "$file" \
             -iqawno/include \
+            -iqawno/include/YSI_Core \
             -iqawno/include/YSI_Storage \
             -i./pawnc-3.10.10-linux/include \
             -o"compiled/filterscripts/$name.amx"
-        done
 
-    # 6️⃣ Upload dos AMX compilados
+    # 7️⃣ Upload dos AMX compilados
     - name: Upload dos AMX
       uses: actions/upload-artifact@v4
       with:
