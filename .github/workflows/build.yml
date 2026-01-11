@@ -48,6 +48,8 @@ jobs:
           ./pawnc-3.10.10-linux/bin/pawncc "$file" \
             -iqawno/include \
             -iqawno/include/YSI_Storage \
+            -pawncc filterscripts/database.pwn -i"qawno/include"
+
             -i./pawnc-3.10.10-linux/include \
             -o"compiled/gamemodes/$name.amx"
         done
